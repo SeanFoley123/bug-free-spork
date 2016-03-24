@@ -2,3 +2,5 @@
 We cannot allow our great nation's cutlery to be overwhelmed by these vermin-bearing hoards. Bring out the mushroom hound!
 
 A spoon with a fork symbiote. 
+
+Soup is the worst of enemies.
