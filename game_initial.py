@@ -1,7 +1,10 @@
 import math, sys
 import pygame
 from pygame.locals import *
-
+# Save files would not be hard, especially with pickling
+# Really important: we need to be consistent on how we define positions. Right now I'm using relative to the upper left hand 
+# corner of the current room. All sprites are defined at the center of their bounding rectangles, which might make rolling
+# over easier.
 class Room(object):
 	### Assumes you make a self.objects_list in your __init__. 
 	def update(self):
@@ -11,12 +14,14 @@ class Room(object):
 class Room1(Room):
 	### Needs to be specialized for the particular arrangement of things in it; should have a list of objects, which will
 	### keep track of their own position, a room size, and a background picture.
-	def __init__(self):
+	def __init__(self, hero):
 		self.room_size = (3000, 1000)
+		self.background = pygame.Surface(self.room_size)
+		self.background.fill(pygame.Color('blue'))
 
 
 class Room2(Room):
-	def __init__(self):
+	def __init__(self, hero):
 		pass	
 
 
@@ -43,7 +48,8 @@ class View(object):
 		self.position = (0, self.model.current_room.room_size[1] - self.screen_size[1])
 
 	def update(self):
-		pass
+		self.screen.blit(self.model.current_room.background, (-self.position[0], -self.position[0]))
+		pygame.display.update()
 
 
 class Controller(object):
@@ -66,17 +72,15 @@ class Model(object):
 		# Need a mushroom guy
 		# Need a current room
 		# Need a viewer of the proper size and a controller
-		self.controller = Controller(self)
+		self.hero = Mushroom_Guy()
 
-		self.room_list = [Room1(), Room2()]
-		self.current_room = self.room_list(0)
+		self.room_list = [Room1(self.hero), Room2(self.hero)]
+		self.current_room = self.room_list[0]
+
+		self.controller = Controller(self)
 
 		screen_size = (800, 600)
 		self.view = View(self, screen_size)
-
-		self.hero = Mushroom_Guy()
-
-		
 
 	def update(self):
 		self.controller.update()
