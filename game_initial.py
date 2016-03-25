@@ -12,7 +12,7 @@ class Room1(Room):
 	### Needs to be specialized for the particular arrangement of things in it; should have a list of objects, which will
 	### keep track of their own position, a room size, and a background picture.
 	def __init__(self):
-		pass
+		self.room_size = (3000, 1000)
 
 
 class Room2(Room):
@@ -34,13 +34,13 @@ class Mushroom_Guy(Walking_things):
 
 class View(object):
 	### The room object in the model keeps track of the positions of all the things, and the view needs to draw them in 
-	### the right places. It should keep track of its own position relative to the top left of the current room too.
+	### the right places. It should keep track of its own position (top left corner) relative to the top left of the current room too.
 	def __init__(self, model, screen_size):
 		# Model is the big container, and screen_size is a tuple (width, height)
 		self.model = model
 		self.screen_size = screen_size
 		self.screen = pygame.display.set_mode(screen_size)
-		self.position = (0, 0)
+		self.position = (0, self.model.current_room.room_size[1] - self.screen_size[1])
 
 	def update(self):
 		pass
@@ -68,13 +68,15 @@ class Model(object):
 		# Need a viewer of the proper size and a controller
 		self.controller = Controller(self)
 
+		self.room_list = [Room1(), Room2()]
+		self.current_room = self.room_list(0)
+
 		screen_size = (800, 600)
 		self.view = View(self, screen_size)
 
 		self.hero = Mushroom_Guy()
 
-		self.room_list = [Room1(), Room2()]
-		self.current_room = self.room_list(0)
+		
 
 	def update(self):
 		self.controller.update()
