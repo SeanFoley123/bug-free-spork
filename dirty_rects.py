@@ -24,13 +24,16 @@ class Room1(Room):
 		self.hero = hero
 		self.room_size = (1000, 600)
 		self.background = pygame.transform.scale(pygame.image.load('dog.jpg'), self.room_size)
+		self.gravity = 1
 		# Color chart at https://sites.google.com/site/meticulosslacker/pygame-thecolors
 		# This sets start positions based on how big the room is, where the ground is (200 from bottom), and how big the hero is.
 		self.start_positions = [(self.room_size[0]-100, self.room_size[1]-200-self.hero.rect.h/2), (100, self.room_size[1]-200-self.hero.rect.h/2)]
-		# A list of lists of objects in the room. objects_list[0] is non-solid objects, objects_list[1] are solid.
+		# Okay new way. First is a list of things that interact with you when you're on them, like lava that kills you or mushrooms you can eat.
+		# Second list is viscous things. Third is hard things.
 		self.objects_list = [[self.hero, Lava(pygame.Rect(self.room_size[0]/3, self.room_size[1]-210, self.room_size[0]/3, 210))],
-								[Ground(pygame.Rect(0, self.room_size[1]-200, self.room_size[0]/3, 200)), 
-								Ground(pygame.Rect(2*self.room_size[0]/3, self.room_size[1]-200, self.room_size[0]/3, 200))]]
+								[Lava(pygame.Rect(self.room_size[0]/3, self.room_size[1]-210, self.room_size[0]/3, 210))],
+								[Ground(pygame.Rect(0, self.room_size[1]-199, self.room_size[0]/3, 200)), 
+								Ground(pygame.Rect(2*self.room_size[0]/3, self.room_size[1]-280, self.room_size[0]/3, 280))]]
 
 
 class Room2(Room):
@@ -39,8 +42,8 @@ class Room2(Room):
 
 
 class Obstacle(object):
-	def __init__(self, rect, sprite, mortality = False, hardness = False):
-		self.hardness = hardness
+	def __init__(self, rect, sprite, mortality = False, visc = 1):
+		self.visc = visc
 		self.mortality = mortality
 		self.sprite = sprite
 		self.rect = rect
@@ -53,37 +56,82 @@ class Ground(Obstacle):
 	def __init__(self, rect):
 		sprite = pygame.Surface((rect.w, rect.h))
 		sprite.fill(pygame.Color('aquamarine4'))
-		Obstacle.__init__(self, rect, sprite, False, True)
+		Obstacle.__init__(self, rect, sprite, False, 0)
 
 		
 class Lava(Obstacle):
 	def __init__(self, rect):
 		sprite = pygame.Surface((rect.w, rect.h))
 		sprite.fill(pygame.Color('chocolate1'))
-		Obstacle.__init__(self, rect, sprite, True, False)
+		Obstacle.__init__(self, rect, sprite, True, .5)
 
 
 class WalkingThings(object):
-	###Defines basic movement for things that can move/jump
+	### Defines basic movement for things that can move/jump
+	### Permeability type thing: a multiplicative factor on gravity.
 	def walk(self, direction):
-		# print 'walking'
-		self.position = (self.position[0]+direction*self.speed, self.position[1])
+		self.vx += direction*self.speed*self.visc
 
 	def update(self):
+		print 'hi'
+		blockedx, blockedy = 1, 1
+		self.check_viscous_collisions()
+		if not self.check_below():
+			# Checks if you're falling
+			self.vy += self.model.current_room.gravity*self.visc
+		if self.check_hard_collisions('horz'):
+			self.snap('horz', self.check_hard_collisions('horz'))
+			blockedx = 0
+		if self.check_hard_collisions('vert'):
+			self.snap('vert', self.check_hard_collisions('vert'))
+			blockedy = 0
+		self.position = self.position[0]+self.vx*blockedx, self.position[1]+self.vy*blockedy
 		self.rect.center = self.position
-		self.check_collisions()
+		self.check_soft_collisions()
 
-	def check_collisions(self):
+	def check_soft_collisions(self):
 		# I think we only care about collisions with non-solid things. We shouldn't actually ever overlap with a solid object.
 		for thing in self.model.current_room.objects_list[0]:
 			if self.rect.colliderect(thing.rect):
 				if thing.mortality:
 					self.die()
 
-	def is_clear(self, direction):
-		# Direction is vertical or horizontal
-		# Checks if there's a solid object at the rectangle shifted by vx or vy, whichever is appropriate
-		pass
+	def check_viscous_collisions(self):
+		# Direction is 'horz' or 'vert'. Returns the viscosity of whatever is there. If nothing's there, return 1.
+		swimming_in = pygame.Rect(self.rect.left, self.rect.top, self.rect.w, self.rect.h).collidelistall(self.model.current_room.objects_list[1])
+		if swimming_in:
+			self.visc = min([self.model.current_room.objects_list[1][i].visc for i in swimming_in])
+		else:
+			self.visc = 1
+
+	def check_hard_collisions(self, direction):
+		# Takes in a direction, returns distance to what you would hit or None
+		directions = {'horz': (self.vx, 0), 'vert': (0, self.vy)}
+		things_I_hit = pygame.Rect(self.rect.left+directions[direction][0], self.rect.top+directions[direction][1], self.rect.w, self.rect.h).collidelistall(self.model.current_room.objects_list[2])
+		if things_I_hit:
+			# This finds the closest hard object that you're colliding with, and returns that distance. Inelegant. We should make a better way.
+			if directions[direction] > 0 and direction == 'horz':
+				return min([self.model.current_room.objects_list[2][i].rect.left - self.rect.right for i in things_I_hit])
+			elif directions[direction] < 0 and direction == 'horz':
+				return max([self.model.current_room.objects_list[2][i].rect.right - self.rect.left for i in things_I_hit])
+			elif directions[direction] > 0 and direction == 'vert':
+				return min([self.model.current_room.objects_list[2][i].rect.top - self.rect.bottom for i in things_I_hit])
+			elif directions[direction] < 0 and direction == 'vert':
+				return min([self.model.current_room.objects_list[2][i].rect.bottom - self.rect.top for i in things_I_hit])
+		else:
+			return None
+
+	def check_below(self):
+		# Returns True if there's something below you
+		return self.rect.collidelistall(self.model.current_room.objects_list[2])
+
+	def snap(self, direction, distance):
+		# Moves you distance in direction. Meant to prevent you from stopping before an obstacle.
+		print self.position
+		if direction == 'horz':
+			self.position = self.position[0]+distance*self.vx/abs(self.vx)-1, self.position[1]
+		elif direction == 'vert':
+			self.position = self.position[0], self.position[1]+distance*self.vy/abs(self.vy)-1
 
 	def die(self):
 		self.model.current_room.objects_list[0].remove(self)
@@ -102,6 +150,8 @@ class MushroomGuy(WalkingThings):
 		self.sprite = pygame.image.load('dog.jpg')
 		self.sprite = pygame.transform.scale(self.sprite, (100, 75))
 		self.mortality = False
+		self.visc = 1
+		self.vx, self.vy = 0, 0
 
 	def die(self):
 		self.sprite.fill(pygame.Color('red'), pygame.Rect(0, self.rect.h/2, self.rect.w, self.rect.h/2))
@@ -120,7 +170,7 @@ class View(object):
 	def update(self):
 		self.position = min(max(self.model.hero.position[0] - self.screen_size[0]/2, 0), self.model.current_room.room_size[0]-self.screen_size[0]), self.position[1]
 		self.screen.blit(self.model.current_room.background, (-self.position[0], -self.position[1]))
-		for thing in self.model.current_room.objects_list[0] + self.model.current_room.objects_list[1]:
+		for thing in self.model.current_room.objects_list[0] + self.model.current_room.objects_list[1] + self.model.current_room.objects_list[2]:
 			self.screen.blit(thing.sprite, (thing.rect.left-self.position[0], thing.rect.top-self.position[1]))
 		pygame.display.update()
 
@@ -128,27 +178,30 @@ class View(object):
 class Controller(object):
 	def __init__(self, model):
 		self.model = model
-		self.walking = 0
+		self.left_down = False
+		self.right_down = False
 
 	def update(self):
-		if self.walking:
-			self.model.hero.walk(self.walking)
+		if self.right_down and self.left_down:
+			self.model.current_room.hero.vx = 0
+		elif self.right_down:
+			self.model.current_room.hero.vx = self.model.current_room.hero.speed*self.model.current_room.hero.visc
+		elif self.left_down:
+			self.model.current_room.hero.vx = -self.model.current_room.hero.speed*self.model.current_room.hero.visc
+		else:
+			self.model.current_room.hero.vx = 0
 		for event in pygame.event.get():
 			if event.type == QUIT or event.type == KEYDOWN and event.key == pygame.K_ESCAPE:
 				pygame.quit()
 				sys.exit()
 			elif event.type == KEYDOWN and event.key == pygame.K_RIGHT:
-				self.walking += 1				
-			elif event.type == KEYDOWN and event.key == pygame.K_LEFT:
-				self.walking -= 1
+				self.right_down = True
 			elif event.type == KEYUP and event.key == pygame.K_RIGHT:
-				self.walking -= 1
+				self.right_down = False	
+			if event.type == KEYDOWN and event.key == pygame.K_LEFT:
+				self.left_down = True
 			elif event.type == KEYUP and event.key == pygame.K_LEFT:
-				self.walking += 1
-			elif event.type == KEYDOWN and event.key == pygame.K_a:
-				self.model.view.position = self.model.view.position[0] - 100, self.model.view.position[1]
-			elif event.type == KEYDOWN and event.key == pygame.K_d:
-				self.model.view.position = self.model.view.position[0] + 100, self.model.view.position[1]
+				self.left_down = False
 
 
 class Model(object):
