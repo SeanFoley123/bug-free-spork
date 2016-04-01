@@ -31,13 +31,12 @@ class Room1(Room):
 		self.start_positions = [(self.room_size[0]-100, self.room_size[1]-200-self.hero.rect.h/2), (100, self.room_size[1]-400-self.hero.rect.h/2)]
 		# Okay new way. First is a list of things that interact with you when you're on them, like lava that kills you or mushrooms you can eat.
 		# Second list is viscous things. Third is hard things.
-		self.objects_list = [[self.hero], #Lava(pygame.Rect(self.room_size[0]/3, self.room_size[1]-210, self.room_size[0]/3, 210))],
-								[],#Lava(pygame.Rect(self.room_size[0]/3, self.room_size[1]-210, self.room_size[0]/3, 210))],
+		self.objects_list = [[self.hero, Lava(pygame.Rect(self.room_size[0]/3, self.room_size[1]-210, self.room_size[0]/3, 210))],
+								[Lava(pygame.Rect(self.room_size[0]/3, self.room_size[1]-210, self.room_size[0]/3, 210))],
 								[Ground(pygame.Rect(self.room_size[0]/3, self.room_size[1]-200, self.room_size[0]/3, 200)),
 								Ground(pygame.Rect(0, self.room_size[1]-200, self.room_size[0]/3, 200)), 
 								Ground(pygame.Rect(2*self.room_size[0]/3, self.room_size[1]-280, self.room_size[0]/3, 280)),
 								Ground(pygame.Rect(0,0,20,self.room_size[1]))]]
-		print self.room_size[1]-199-self.hero.rect.h/2
 
 
 class Room2(Room):
@@ -74,21 +73,26 @@ class WalkingThings(object):
 	### Defines basic movement for things that can move/jump
 	### Permeability type thing: a multiplicative factor on gravity.
 	def walk(self, direction):
-		self.vx += direction*self.speed*self.visc
+		if not self.is_blocked('horz', direction):
+			self.vx = self.speed*self.visc*direction
+
+	def jump(self):
+		if not self.is_blocked('vert', -1) and self.is_blocked('vert', 1):
+			self.vy -= 10
 
 	def update(self):
-		# print self.position
 		self.check_viscous_collisions()
-		if self.check_hard_collisions('horz') and self.vx != 0:
-			print 'snapping'
-			self.snap('horz', self.check_hard_collisions('horz'))
-			self.vx = 0
+		if self.check_hard_collisions('horz'):
+			if not self.blockedx and self.vx != 0:
+				self.snap('horz', self.check_hard_collisions('horz'))
+				self.vx = 0
+			self.blockedx = 1
+		else: 
+			self.blockedx = 0
 		if self.check_hard_collisions('vert') and self.vy != 0:
 			self.snap('vert', self.check_hard_collisions('vert'))
 			self.vy = 0
-		print self.check_hard_collisions('vert')
-		if not self.on_box():
-			print 'clear!', self.vy
+		if not self.is_blocked('vert', 1):
 			self.vy += self.model.current_room.gravity*self.visc
 		self.position = self.position[0]+self.vx, self.position[1]+self.vy
 		self.rect.center = self.position
@@ -115,19 +119,26 @@ class WalkingThings(object):
 		things_I_hit = pygame.Rect(self.rect.left+directions[direction][0]+np.sign(self.vx), self.rect.top+directions[direction][1]+np.sign(self.vy), self.rect.w, self.rect.h).collidelistall(self.model.current_room.objects_list[2])
 		if things_I_hit:
 			# This finds the closest hard object that you're colliding with, and returns that distance. Inelegant. We should make a better way.
-			if directions[direction] > 0 and direction == 'horz':
-				return min([self.model.current_room.objects_list[2][i].rect.left - self.rect.right - np.sign(directions[direction][0]) for i in things_I_hit])
-			elif directions[direction] < 0 and direction == 'horz':
-				return max([self.model.current_room.objects_list[2][i].rect.right - self.rect.left - np.sign(directions[direction][0]) for i in things_I_hit])
-			elif directions[direction] > 0 and direction == 'vert':
-				return min([self.model.current_room.objects_list[2][i].rect.top - self.rect.bottom - np.sign(directions[direction][1]) for i in things_I_hit])
-			elif directions[direction] < 0 and direction == 'vert':
-				return max([self.model.current_room.objects_list[2][i].rect.bottom - self.rect.top - np.sign(directions[direction][1]) for i in things_I_hit])
+			if directions[direction][0] > 0 and direction == 'horz':
+				return min([self.model.current_room.objects_list[2][i].rect.left - self.rect.right - 1 for i in things_I_hit])
+			elif directions[direction][0] < 0 and direction == 'horz':
+				return max([self.model.current_room.objects_list[2][i].rect.right - self.rect.left + 1 for i in things_I_hit])
+			elif directions[direction][1] > 0 and direction == 'vert':
+				return min([self.model.current_room.objects_list[2][i].rect.top - self.rect.bottom - 1 for i in things_I_hit])
+			elif directions[direction][1] < 0 and direction == 'vert':
+				return max([self.model.current_room.objects_list[2][i].rect.bottom - self.rect.top + 1 for i in things_I_hit])
 		else:
 			return None
 
-	def on_box(self):
-		return pygame.Rect(self.rect.left, self.rect.bottom+1, self.rect.w, self.rect.h).collidelistall(self.model.current_room.objects_list[2])
+	def is_blocked(self, direction, other_direction):
+		if direction == 'horz' and np.sign(other_direction) == 1:
+			return pygame.Rect(self.rect.right, self.rect.top, 2, self.rect.h).collidelistall(self.model.current_room.objects_list[2])
+		elif direction == 'horz' and np.sign(other_direction) == -1:
+			return pygame.Rect(self.rect.left-2, self.rect.top, 2, self.rect.h).collidelistall(self.model.current_room.objects_list[2]) 
+		if direction == 'vert' and np.sign(other_direction) == 1:
+			return pygame.Rect(self.rect.left, self.rect.bottom, self.rect.w, 2).collidelistall(self.model.current_room.objects_list[2])
+		if direction == 'vert' and np.sign(other_direction) == -1:
+			return pygame.Rect(self.rect.left, self.rect.top - 2, self.rect.w, 2).collidelistall(self.model.current_room.objects_list[2]) 
 
 	def snap(self, direction, distance):
 		# Moves you distance in direction. Meant to prevent you from stopping before an obstacle.
@@ -155,6 +166,7 @@ class MushroomGuy(WalkingThings):
 		self.mortality = False
 		self.visc = 1
 		self.vx, self.vy = 0, 0
+		self.blockedx = 0
 
 	def die(self):
 		self.sprite.fill(pygame.Color('red'), pygame.Rect(0, self.rect.h/2, self.rect.w, self.rect.h/2))
@@ -188,9 +200,9 @@ class Controller(object):
 		if self.right_down and self.left_down:
 			self.model.current_room.hero.vx = 0
 		elif self.right_down:
-			self.model.current_room.hero.vx = self.model.current_room.hero.speed*self.model.current_room.hero.visc
+			self.model.current_room.hero.walk(1)
 		elif self.left_down:
-			self.model.current_room.hero.vx = -self.model.current_room.hero.speed*self.model.current_room.hero.visc
+			self.model.current_room.hero.walk(-1)
 		else:
 			self.model.current_room.hero.vx = 0
 		for event in pygame.event.get():
@@ -205,6 +217,8 @@ class Controller(object):
 				self.left_down = True
 			elif event.type == KEYUP and event.key == pygame.K_LEFT:
 				self.left_down = False
+			if event.type == KEYDOWN and event.key == pygame.K_UP:
+				self.model.current_room.hero.jump()
 
 
 class Model(object):
