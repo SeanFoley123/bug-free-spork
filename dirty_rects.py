@@ -129,9 +129,9 @@ class WalkingThings(object):
 		# Moves you distance in direction. Meant to prevent you from stopping before an obstacle.
 		print self.position
 		if direction == 'horz':
-			self.position = self.position[0]+distance*self.vx/abs(self.vx)-1, self.position[1]
+			self.position = self.position[0]+distance*self.vx/(abs(self.vx)-1), self.position[1]
 		elif direction == 'vert':
-			self.position = self.position[0], self.position[1]+distance*self.vy/abs(self.vy)-1
+			self.position = self.position[0], self.position[1]+distance*self.vy/(abs(self.vy)-1)
 
 	def die(self):
 		self.model.current_room.objects_list[0].remove(self)
