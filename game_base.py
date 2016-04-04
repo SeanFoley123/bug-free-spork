@@ -101,7 +101,7 @@ class MushroomGuy(pygame.sprite.Sprite):
                 self.rect.left = block.rect.right
 
         # Did this update cause us to hit a deadly object?
-        block_hit_list = pygame.sprite.spritecollide(self, self.room.deadlies, False)
+        block_hit_list = pygame.sprite.spritecollide(self, self.room.sludge, False)
         for block in block_hit_list:
         	self.rect.x -= self.change_x*block.visc
 
@@ -121,9 +121,13 @@ class MushroomGuy(pygame.sprite.Sprite):
             # Stop our vertical movement
             self.change_y = 0
 
-        block_hit_list = pygame.sprite.spritecollide(self, self.room.deadlies, False)
+        block_hit_list = pygame.sprite.spritecollide(self, self.room.sludge, False)
         for block in block_hit_list:
         	self.rect.y -= self.change_y*block.visc
+
+        block_hit_list = pygame.sprite.spritecollide(self, self.room.deadlies, False)
+        for block in block_hit_list:
+            self.kill()
  
 class Obstacle(pygame.sprite.Sprite):
     """ Wall the player can run into. """
@@ -161,6 +165,14 @@ class Lava(Obstacle):
 		self.image = pygame.Surface((w, h))
 		self.image.fill(pygame.Color('chocolate1'))
 
+class Water(Obstacle):
+    def __init__(self, x, y, w, h):
+        Obstacle.__init__(self, x, y, w, h, .5, False)
+
+        # Make the color correct
+        self.image = pygame.Surface((w, h))
+        self.image.fill(pygame.Color('cadetblue1'))
+
 class Room(object):
     """ This is a generic super-class used to define a level.
         Create a child class for each level with level-specific
@@ -172,6 +184,7 @@ class Room(object):
         self.wall_list = pygame.sprite.Group()
         self.enemy_list = pygame.sprite.Group()
         self.deadlies = pygame.sprite.Group()
+        self.sludge = pygame.sprite.Group()
         self.player = player
          
         # Background image
@@ -194,6 +207,7 @@ class Room(object):
         self.wall_list.draw(screen)
         self.enemy_list.draw(screen)
         self.deadlies.draw(screen)
+        self.sludge.draw(screen)
  
  
 # Create platforms for the level
@@ -212,6 +226,8 @@ class Room_01(Room):
                  [200, 30, 500, 300],
                  ]
         deadly = [[300, 50, 500, 550]]
+
+        sludge = [[300, 100, 400, 350]]
  
         # Go through the array above and add platforms
         for obstacle in room:
@@ -227,6 +243,13 @@ class Room_01(Room):
  			block.rect.y = obstacle[3]
  			block.player = self.player
  			self.deadlies.add(block)
+
+        for obstacle in sludge:
+            block = Water(obstacle[2], obstacle[3], obstacle[0], obstacle[1])
+            block.rect.x = obstacle[2]
+            block.rect.y = obstacle[3]
+            block.player = self.player
+            self.sludge.add(block)
 
 def View():
     """ Main Program """
@@ -252,8 +275,8 @@ def View():
     active_sprite_list = pygame.sprite.Group()
     player.room = current_room
  
-    player.rect.x = 340
-    player.rect.y = SCREEN_HEIGHT - player.rect.height
+    player.rect.x = 0
+    player.rect.y = 0
     active_sprite_list.add(player)
  
     # Loop until the user clicks the close button.
