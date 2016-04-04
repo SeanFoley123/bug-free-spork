@@ -220,32 +220,35 @@ class Room_01(Room):
         # Call the parent constructor
         Room.__init__(self, player)
  
-        # Array with width, height, x, and y of obstacle
-        room = [[500, 50, 0, 550],
-                 [200, 30, 200, 400],
-                 [200, 30, 500, 300],
+        # Solid, non-deadly objects. Array with width, height, x, y, and class of obstacle
+        room = [[500, 50, 0, 550, Ground],
+                 [200, 30, 200, 400, Ground],
+                 [200, 30, 500, 300, Ground],
                  ]
-        deadly = [[300, 50, 500, 550]]
 
-        sludge = [[300, 100, 400, 350]]
+        # Kills you when you touch it. Array with width, height, x, y, and class of obstacle
+        deadly = [[300, 50, 500, 550, Lava]]
+
+        # Objects that hinder movement. Array with width, height, x, y, and class of obstacle
+        sludge = [[300, 100, 400, 350, Water]]
  
         # Go through the array above and add platforms
         for obstacle in room:
-            block = Ground(obstacle[2], obstacle[3], obstacle[0], obstacle[1])
+            block = obstacle[4](obstacle[2], obstacle[3], obstacle[0], obstacle[1])
             block.rect.x = obstacle[2]
             block.rect.y = obstacle[3]
             block.player = self.player
             self.wall_list.add(block)
 
         for obstacle in deadly:
- 			block = Lava(obstacle[2], obstacle[3], obstacle[0], obstacle[1])
+ 			block = obstacle[4](obstacle[2], obstacle[3], obstacle[0], obstacle[1])
  			block.rect.x = obstacle[2]
  			block.rect.y = obstacle[3]
  			block.player = self.player
  			self.deadlies.add(block)
 
         for obstacle in sludge:
-            block = Water(obstacle[2], obstacle[3], obstacle[0], obstacle[1])
+            block = obstacle[4](obstacle[2], obstacle[3], obstacle[0], obstacle[1])
             block.rect.x = obstacle[2]
             block.rect.y = obstacle[3]
             block.player = self.player
@@ -337,86 +340,3 @@ def View():
  
 if __name__ == "__main__":
     View()
-
-# # Call this function so the Pygame library can initialize itself
-# pygame.init()
- 
-# # Create an 800x600 sized screen
-# screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
- 
-# # Set the title of the window
-# pygame.display.set_caption('Test')
- 
-# # List to hold all the sprites
-# all_sprite_list = pygame.sprite.Group()
- 
-# # Make the walls. (x_pos, y_pos, width, height)
-# wall_list = pygame.sprite.Group()
- 
-# wall = Ground(pygame.Rect(0, 0, 10, 600))
-# wall_list.add(wall)
-# all_sprite_list.add(wall)
- 
-# wall = Ground(pygame.Rect(10, 590, 600, 10))
-# wall_list.add(wall)
-# all_sprite_list.add(wall)
- 
-# wall = Ground(pygame.Rect(10, 200, 100, 10))
-# wall_list.add(wall)
-# all_sprite_list.add(wall)
-
-# # Make a list of deadly things
-# death_list = pygame.sprite.Group()
-
-# lava_patch = Lava(pygame.Rect(600, 590, 200, 10))
-# death_list.add(lava_patch)
-# all_sprite_list.add(lava_patch)
- 
-# # Create the player paddle object
-# player = MushroomGuy(50, 50)
-# player.walls = wall_list
-# player.deadlies = death_list
- 
-# all_sprite_list.add(player)
- 
-# clock = pygame.time.Clock()
- 
-# done = False
- 
-# while not done:
- 
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             done = True
- 
-#         elif event.type == pygame.KEYDOWN:
-#             if event.key == pygame.K_LEFT:
-#                 player.changespeed(-3, 0)
-#             elif event.key == pygame.K_RIGHT:
-#                 player.changespeed(3, 0)
-#             elif event.key == pygame.K_UP:
-#                 player.changespeed(0, -3)
-#             elif event.key == pygame.K_DOWN:
-#                 player.changespeed(0, 3)
- 
-#         elif event.type == pygame.KEYUP:
-#             if event.key == pygame.K_LEFT:
-#                 player.changespeed(3, 0)
-#             elif event.key == pygame.K_RIGHT:
-#                 player.changespeed(-3, 0)
-#             elif event.key == pygame.K_UP:
-#                 player.changespeed(0, 3)
-#             elif event.key == pygame.K_DOWN:
-#                 player.changespeed(0, -3)
- 
-#    all_sprite_list.update()
- 
-#    screen.fill(BLACK)
- 
-#    all_sprite_list.draw(screen)
- 
-#    pygame.display.flip()
- 
-#    clock.tick(60)
- 
-# pygame.quit()
