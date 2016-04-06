@@ -47,15 +47,24 @@ class MushroomGuy(pygame.sprite.Sprite):
 
         # Set corruption points
         self.corruption = 0
+
+        # Set shot direction
+        self.shot_dir = 1
  
     # Player-controlled movement:
     def go_left(self):
         """ Called when the user hits the left arrow. """
         self.change_x = -6
+
+        # Make the shot direction to the left
+        self.shot_dir = -1
  
     def go_right(self):
         """ Called when the user hits the right arrow. """
         self.change_x = 6
+
+        # Make the shot direction to the right
+        self.shot_dir = 1
  
     def stop(self):
         """ Called when the user lets off the keyboard. """
@@ -148,8 +157,40 @@ class MushroomGuy(pygame.sprite.Sprite):
         # Update the picture if necessary
         self.how_corrupt()
 
+class Spore(pygame.sprite.Sprite):
+    """ Base class of spores. 
+
+        player: pass the player into the shot
+        speed: a tuple of the x velocity and the y velocity
+        size: a tuple of the width and height of the shot"""
+    def __init__(self, player, speed = (8,0), size = (5,5)):
+        # Call the parent's init
+        pygame.sprite.Sprite.__init__(self)
+
+        # Make visible and set direction
+        self.image = pygame.Surface([size[0], size[1]])
+        self.image.fill(pygame.Color('blueviolet'))
+        self.direction = player.shot_dir
+
+        # Set up initial position and direction of shot
+        self.rect = self.image.get_rect()
+
+        self.rect.y = player.rect.y + player.rect.height/2
+        self.change_x = speed[0]
+        self.change_y = speed[1]
+
+        if self.direction == 1:
+            self.rect.x = player.rect.x + player.rect.width
+        else:
+            self.rect.x = player.rect.x
+
+    def update(self):
+        """ Updates the spore. """
+        self.rect.x += self.change_x
+        self.rect.y += self.change_y
+
 class Obstacle(pygame.sprite.Sprite):
-    """ Wall the player can run into. """
+    """ Immobile things that the player might run into. """
     def __init__(self, x, y, width, height, visc = 1, mortality = False):
         """ Constructor for the wall that the player can run into. """
         # Call the parent's constructor
@@ -169,7 +210,8 @@ class Obstacle(pygame.sprite.Sprite):
         self.mortality = mortality
 
 class Ground(Obstacle):
-	def __init__(self, x, y, w, h):
+    """ Solid surfaces or walls. """
+    def __init__(self, x, y, w, h):
 		Obstacle.__init__(self, x, y, w, h, 0, False)
 
 		# Make the color and all different
@@ -177,7 +219,8 @@ class Ground(Obstacle):
 		self.image.fill(pygame.Color('aquamarine4'))
 
 class Lava(Obstacle):
-	def __init__(self, x, y, w, h):
+    """ Deadly red terrain. """
+    def __init__(self, x, y, w, h):
 		Obstacle.__init__(self, x, y, w, h, .5, False)
 
 		# Make the color correct
@@ -185,6 +228,7 @@ class Lava(Obstacle):
 		self.image.fill(pygame.Color('chocolate1'))
 
 class Water(Obstacle):
+    """ Slows you down. """
     def __init__(self, x, y, w, h):
         Obstacle.__init__(self, x, y, w, h, .5, False)
 
@@ -193,6 +237,8 @@ class Water(Obstacle):
         self.image.fill(pygame.Color('cadetblue1'))
 
 class Edible(pygame.sprite.Sprite):
+    """ This is the base class; any new foods should be modified from this one.
+        Maybe make this an inherited class from Obstacle? """
     def __init__(self, x, y, width, height, corr_points = 1):
         """ Constructor for the wall that the player can run into. """
         # Call the parent's constructor
