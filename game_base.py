@@ -12,6 +12,8 @@ BLUE = (50, 50, 255)
 # Screen dimensions
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+SCREEN_W_MID = SCREEN_WIDTH/2
+SCREEN_H_MID = SCREEN_HEIGHT/2
 
 # Save files would not be hard, especially with pickling
 # Really important: we need to be consistent on how we define positions. Right now I'm using relative to the upper left hand 
@@ -28,8 +30,8 @@ class MushroomGuy(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
  
         # Set height, width
-        self.image = pygame.image.load('dog.jpg')
-        self.image = pygame.transform.scale(self.image, (100, 75))
+        self.image_list = [pygame.image.load('dog.jpg'), pygame.image.load('evil_dog1.jpg')]
+        self.image = pygame.transform.scale(self.image_list[0], (100, 75))
  
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
@@ -42,15 +44,27 @@ class MushroomGuy(pygame.sprite.Sprite):
 
         # List of sprites we can bump against
         self.room = None
+
+        # Set corruption points
+        self.corruption = 0
+
+        # Set shot direction
+        self.shot_dir = 1
  
     # Player-controlled movement:
     def go_left(self):
         """ Called when the user hits the left arrow. """
         self.change_x = -6
+
+        # Make the shot direction to the left
+        self.shot_dir = -1
  
     def go_right(self):
         """ Called when the user hits the right arrow. """
         self.change_x = 6
+
+        # Make the shot direction to the right
+        self.shot_dir = 1
  
     def stop(self):
         """ Called when the user lets off the keyboard. """
@@ -81,6 +95,10 @@ class MushroomGuy(pygame.sprite.Sprite):
         if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
             self.change_y = 0
             self.rect.y = SCREEN_HEIGHT - self.rect.height
+
+    def how_corrupt(self):
+        """ Changes the image based on the corruption level of the player. """
+        self.image = pygame.transform.scale(self.image_list[self.corruption/5], (100, 75))
  
     def update(self):
         """ Update the player position. """
@@ -121,16 +139,58 @@ class MushroomGuy(pygame.sprite.Sprite):
             # Stop our vertical movement
             self.change_y = 0
 
+        # Check if we are stuck in something viscous and slow us down if we are
         block_hit_list = pygame.sprite.spritecollide(self, self.room.sludge, False)
         for block in block_hit_list:
         	self.rect.y -= self.change_y*block.visc
 
+        # Check to see if we hit something deadly
         block_hit_list = pygame.sprite.spritecollide(self, self.room.deadlies, False)
         for block in block_hit_list:
             self.kill()
- 
+
+        # Check to see if we ate anything
+        food_hit_list = pygame.sprite.spritecollide(self, self.room.consumeable, True)
+        for food in food_hit_list:
+            self.corruption += food.corr_points
+
+        # Update the picture if necessary
+        self.how_corrupt()
+
+class Spore(pygame.sprite.Sprite):
+    """ Base class of spores. 
+
+        player: pass the player into the shot
+        speed: a tuple of the x velocity and the y velocity
+        size: a tuple of the width and height of the shot"""
+    def __init__(self, player, speed = (8,0), size = (5,5)):
+        # Call the parent's init
+        pygame.sprite.Sprite.__init__(self)
+
+        # Make visible and set direction
+        self.image = pygame.Surface([size[0], size[1]])
+        self.image.fill(pygame.Color('blueviolet'))
+        self.direction = player.shot_dir
+
+        # Set up initial position and direction of shot
+        self.rect = self.image.get_rect()
+
+        self.rect.y = player.rect.y + player.rect.height/2
+        self.change_x = speed[0]
+        self.change_y = speed[1]
+
+        if self.direction == 1:
+            self.rect.x = player.rect.x + player.rect.width
+        else:
+            self.rect.x = player.rect.x
+
+    def update(self):
+        """ Updates the spore. """
+        self.rect.x += self.change_x
+        self.rect.y += self.change_y
+
 class Obstacle(pygame.sprite.Sprite):
-    """ Wall the player can run into. """
+    """ Immobile things that the player might run into. """
     def __init__(self, x, y, width, height, visc = 1, mortality = False):
         """ Constructor for the wall that the player can run into. """
         # Call the parent's constructor
@@ -150,7 +210,8 @@ class Obstacle(pygame.sprite.Sprite):
         self.mortality = mortality
 
 class Ground(Obstacle):
-	def __init__(self, x, y, w, h):
+    """ Solid surfaces or walls. """
+    def __init__(self, x, y, w, h):
 		Obstacle.__init__(self, x, y, w, h, 0, False)
 
 		# Make the color and all different
@@ -158,7 +219,8 @@ class Ground(Obstacle):
 		self.image.fill(pygame.Color('aquamarine4'))
 
 class Lava(Obstacle):
-	def __init__(self, x, y, w, h):
+    """ Deadly red terrain. """
+    def __init__(self, x, y, w, h):
 		Obstacle.__init__(self, x, y, w, h, .5, False)
 
 		# Make the color correct
@@ -166,12 +228,31 @@ class Lava(Obstacle):
 		self.image.fill(pygame.Color('chocolate1'))
 
 class Water(Obstacle):
+    """ Slows you down. """
     def __init__(self, x, y, w, h):
         Obstacle.__init__(self, x, y, w, h, .5, False)
 
         # Make the color correct
         self.image = pygame.Surface((w, h))
         self.image.fill(pygame.Color('cadetblue1'))
+
+class Edible(pygame.sprite.Sprite):
+    """ This is the base class; any new foods should be modified from this one.
+        Maybe make this an inherited class from Obstacle? """
+    def __init__(self, x, y, width, height, corr_points = 1):
+        """ Constructor for the wall that the player can run into. """
+        # Call the parent's constructor
+        pygame.sprite.Sprite.__init__(self)
+
+        # Set the visual
+        self.image = pygame.Surface([width, height])
+        self.image.fill(pygame.Color('deeppink2'))
+        self.corr_points = corr_points
+
+        # Make our top-left corner the passed-in location.
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
 
 class Room(object):
     """ This is a generic super-class used to define a level.
@@ -185,6 +266,7 @@ class Room(object):
         self.enemy_list = pygame.sprite.Group()
         self.deadlies = pygame.sprite.Group()
         self.sludge = pygame.sprite.Group()
+        self.consumeable = pygame.sprite.Group()
         self.player = player
          
         # Background image
@@ -196,6 +278,8 @@ class Room(object):
         self.wall_list.update()
         self.enemy_list.update()
         self.deadlies.update()
+        self.sludge.update()
+        self.consumeable.update()
  
     def draw(self, screen):
         """ Draw everything on this level. """
@@ -208,7 +292,13 @@ class Room(object):
         self.enemy_list.draw(screen)
         self.deadlies.draw(screen)
         self.sludge.draw(screen)
- 
+        self.consumeable.draw(screen)
+
+    def draw_end(self, screen):
+        """ Draw the game over screen. """
+        screen.fill(BLACK) 
+        game_over_pic = pygame.transform.scale(pygame.image.load('game_over_mushroom.jpg'), [350, 350])
+        screen.blit(game_over_pic, (SCREEN_W_MID-175, SCREEN_H_MID-175))
  
 # Create platforms for the level
 class Room_01(Room):
@@ -220,36 +310,57 @@ class Room_01(Room):
         # Call the parent constructor
         Room.__init__(self, player)
  
-        # Array with width, height, x, and y of obstacle
-        room = [[500, 50, 0, 550],
-                 [200, 30, 200, 400],
-                 [200, 30, 500, 300],
+        # Solid, non-deadly objects. Array with width, height, x, y, and class of obstacle
+        room = [[500, 50, 0, 550, Ground],
+                 [200, 30, 200, 400, Ground],
+                 [200, 30, 500, 300, Ground],
                  ]
+<<<<<<< HEAD
         deadlies = [[300, 50, 500, 550]]
+=======
+>>>>>>> f875e882c1fb14da2a601166be5e4105b61229c1
 
-        sludge = [[300, 100, 400, 350]]
+        # Kills you when you touch it. Array with width, height, x, y, and class of obstacle
+        deadly = [[300, 50, 500, 550, Lava]]
+
+        # Objects that hinder movement. Array with width, height, x, y, and class of obstacle
+        sludge = [[300, 100, 400, 350, Water]]
+
+        # Objects you can eat. Array with width, height, x, y, and class of obstacle
+        consumeable = [[10, 10, 490, 540, Edible],
+                        [10, 10, 295, 390, Edible],
+                        [10, 10, 200, 540, Edible],
+                        [10, 10, 300, 540, Edible],
+                        [10, 10, 400, 540, Edible]]
  
-        # Go through the array above and add platforms
+        # Go through the array above and add obstacles
         for obstacle in room:
-            block = Ground(obstacle[2], obstacle[3], obstacle[0], obstacle[1])
+            block = obstacle[4](obstacle[2], obstacle[3], obstacle[0], obstacle[1])
             block.rect.x = obstacle[2]
             block.rect.y = obstacle[3]
             block.player = self.player
             self.wall_list.add(block)
 
         for obstacle in deadly:
- 			block = Lava(obstacle[2], obstacle[3], obstacle[0], obstacle[1])
+ 			block = obstacle[4](obstacle[2], obstacle[3], obstacle[0], obstacle[1])
  			block.rect.x = obstacle[2]
  			block.rect.y = obstacle[3]
  			block.player = self.player
  			self.deadlies.add(block)
 
         for obstacle in sludge:
-            block = Water(obstacle[2], obstacle[3], obstacle[0], obstacle[1])
+            block = obstacle[4](obstacle[2], obstacle[3], obstacle[0], obstacle[1])
             block.rect.x = obstacle[2]
             block.rect.y = obstacle[3]
             block.player = self.player
             self.sludge.add(block)
+
+        for food in consumeable:
+            block = food[4](food[2], food[3], food[0], food[1])
+            block.rect.x = food[2]
+            block.rect.y = food[3]
+            block.player = self.player
+            self.consumeable.add(block)
 
 def View():
     """ Main Program """
@@ -320,8 +431,11 @@ def View():
             player.rect.left = 0
  
         # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
-        current_room.draw(screen)
-        active_sprite_list.draw(screen)
+        if player not in active_sprite_list:
+            current_room.draw_end(screen)
+        else:
+            current_room.draw(screen)
+            active_sprite_list.draw(screen)
  
         # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
  
@@ -337,86 +451,3 @@ def View():
  
 if __name__ == "__main__":
     View()
-
-# # Call this function so the Pygame library can initialize itself
-# pygame.init()
- 
-# # Create an 800x600 sized screen
-# screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
- 
-# # Set the title of the window
-# pygame.display.set_caption('Test')
- 
-# # List to hold all the sprites
-# all_sprite_list = pygame.sprite.Group()
- 
-# # Make the walls. (x_pos, y_pos, width, height)
-# wall_list = pygame.sprite.Group()
- 
-# wall = Ground(pygame.Rect(0, 0, 10, 600))
-# wall_list.add(wall)
-# all_sprite_list.add(wall)
- 
-# wall = Ground(pygame.Rect(10, 590, 600, 10))
-# wall_list.add(wall)
-# all_sprite_list.add(wall)
- 
-# wall = Ground(pygame.Rect(10, 200, 100, 10))
-# wall_list.add(wall)
-# all_sprite_list.add(wall)
-
-# # Make a list of deadly things
-# death_list = pygame.sprite.Group()
-
-# lava_patch = Lava(pygame.Rect(600, 590, 200, 10))
-# death_list.add(lava_patch)
-# all_sprite_list.add(lava_patch)
- 
-# # Create the player paddle object
-# player = MushroomGuy(50, 50)
-# player.walls = wall_list
-# player.deadlies = death_list
- 
-# all_sprite_list.add(player)
- 
-# clock = pygame.time.Clock()
- 
-# done = False
- 
-# while not done:
- 
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             done = True
- 
-#         elif event.type == pygame.KEYDOWN:
-#             if event.key == pygame.K_LEFT:
-#                 player.changespeed(-3, 0)
-#             elif event.key == pygame.K_RIGHT:
-#                 player.changespeed(3, 0)
-#             elif event.key == pygame.K_UP:
-#                 player.changespeed(0, -3)
-#             elif event.key == pygame.K_DOWN:
-#                 player.changespeed(0, 3)
- 
-#         elif event.type == pygame.KEYUP:
-#             if event.key == pygame.K_LEFT:
-#                 player.changespeed(3, 0)
-#             elif event.key == pygame.K_RIGHT:
-#                 player.changespeed(-3, 0)
-#             elif event.key == pygame.K_UP:
-#                 player.changespeed(0, 3)
-#             elif event.key == pygame.K_DOWN:
-#                 player.changespeed(0, -3)
- 
-#    all_sprite_list.update()
- 
-#    screen.fill(BLACK)
- 
-#    all_sprite_list.draw(screen)
- 
-#    pygame.display.flip()
- 
-#    clock.tick(60)
- 
-# pygame.quit()
