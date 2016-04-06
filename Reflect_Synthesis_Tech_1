@@ -1,8 +1,18 @@
 Reflection and Synthesis: Tech Review 1
 
 Feedback Synthesis:
+Main feedback: 
+-Avoid trying to implement too many features
+-Water could be handled by either instant death or just a slow movement to start
+-Have mechanics evolve over time and a final stage where the mechanics all come together
+-Focus either on implementing several features or puzzle design, doing both might be too much
+-Shooting spores should be simple (or at least have the option to be simple)
 
+Going forward, we will identify the key features and figure out what order makes the most sense for implementation so that if we have time, we can expand, but will be fine otherwise. We will try out some of the suggestions for how the mechanics should behave, possibly in a series of short trial levels. 
 
+New questions:
+-Which features/abilities are the most important to create good puzzles?
+-What controller interaction makes the most intuitive sense for each ability?
 
 Process Reflection:
 
