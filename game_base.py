@@ -4,7 +4,7 @@ from pygame.locals import *
 
 # -- Global constants
  
-# Colors
+# Colors - check out pygame.Colors. Probably does exactly what you want
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (50, 50, 255)
@@ -31,14 +31,19 @@ class MushroomGuy(pygame.sprite.Sprite):
  
         # Set height, width
         self.image_list = [pygame.image.load('dog.jpg'), pygame.image.load('evil_dog1.jpg')]
-        self.image = pygame.transform.scale(self.image_list[0], (100, 75))
+        for index, image in enumerate(self.image_list):
+            self.image_list[index] = pygame.transform.scale(image, (100, 75))
+        self.image = self.image_list[0]
+        print self.image
  
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
+        print self.rect
         self.rect.y = 0
         self.rect.x = 0
  
         # Set speed vector
+        self.speed = 6
         self.change_x = 0
         self.change_y = 0
 
@@ -54,14 +59,14 @@ class MushroomGuy(pygame.sprite.Sprite):
     # Player-controlled movement:
     def go_left(self):
         """ Called when the user hits the left arrow. """
-        self.change_x = -6
+        self.change_x = -self.speed
 
         # Make the shot direction to the left
         self.shot_dir = -1
  
     def go_right(self):
         """ Called when the user hits the right arrow. """
-        self.change_x = 6
+        self.change_x = self.speed
 
         # Make the shot direction to the right
         self.shot_dir = 1
@@ -315,10 +320,7 @@ class Room_01(Room):
                  [200, 30, 200, 400, Ground],
                  [200, 30, 500, 300, Ground],
                  ]
-<<<<<<< HEAD
         deadlies = [[300, 50, 500, 550]]
-=======
->>>>>>> f875e882c1fb14da2a601166be5e4105b61229c1
 
         # Kills you when you touch it. Array with width, height, x, y, and class of obstacle
         deadly = [[300, 50, 500, 550, Lava]]
@@ -399,7 +401,7 @@ def View():
     # -------- Main Program Loop -----------
     while not done:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 done = True
  
             if event.type == pygame.KEYDOWN:
