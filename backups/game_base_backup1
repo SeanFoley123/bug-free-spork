@@ -4,7 +4,7 @@ from pygame.locals import *
 
 # -- Global constants
  
-# Colors - check out pygame.Colors. Probably does exactly what you want
+# Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (50, 50, 255)
@@ -20,8 +20,6 @@ SCREEN_H_MID = SCREEN_HEIGHT/2
 # corner of the current room. All sprites are defined at the center of their bounding rectangles, which might make rolling
 # over easier.
 
-""" Code for the Player """
-
 class MushroomGuy(pygame.sprite.Sprite):
     """ This class represents the bar at the bottom that the player
     controls. """
@@ -32,20 +30,15 @@ class MushroomGuy(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
  
         # Set height, width
-        self.image_list = [pygame.image.load('dog.jpg').convert(), pygame.image.load('evil_dog1.jpg')]
-        for index, image in enumerate(self.image_list):
-            self.image_list[index] = pygame.transform.scale(image, (100, 75))
-        self.image = self.image_list[0]
-        print self.image
+        self.image_list = [pygame.image.load('dog.jpg'), pygame.image.load('evil_dog1.jpg')]
+        self.image = pygame.transform.scale(self.image_list[0], (100, 75))
  
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
-        print self.rect
         self.rect.y = 0
         self.rect.x = 0
  
         # Set speed vector
-        self.speed = 6
         self.change_x = 0
         self.change_y = 0
 
@@ -61,14 +54,14 @@ class MushroomGuy(pygame.sprite.Sprite):
     # Player-controlled movement:
     def go_left(self):
         """ Called when the user hits the left arrow. """
-        self.change_x = -self.speed
+        self.change_x = -6
 
         # Make the shot direction to the left
         self.shot_dir = -1
  
     def go_right(self):
         """ Called when the user hits the right arrow. """
-        self.change_x = self.speed
+        self.change_x = 6
 
         # Make the shot direction to the right
         self.shot_dir = 1
@@ -164,15 +157,13 @@ class MushroomGuy(pygame.sprite.Sprite):
         # Update the picture if necessary
         self.how_corrupt()
 
-""" Code for the Spores """
-
 class Spore(pygame.sprite.Sprite):
     """ Base class of spores. 
 
         player: pass the player into the shot
         speed: a tuple of the x velocity and the y velocity
         size: a tuple of the width and height of the shot"""
-    def __init__(self, player, speed = (8,0), size = (10,10)):
+    def __init__(self, player, speed = (8,0), size = (5,5)):
         # Call the parent's init
         pygame.sprite.Sprite.__init__(self)
 
@@ -185,170 +176,18 @@ class Spore(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
         self.rect.y = player.rect.y + player.rect.height/2
-        self.change_x = speed[0] * self.direction
-        self.change_y = speed[1] * self.direction
+        self.change_x = speed[0]
+        self.change_y = speed[1]
 
         if self.direction == 1:
             self.rect.x = player.rect.x + player.rect.width
         else:
             self.rect.x = player.rect.x
 
-        # Set up the room and list of things it can hit
-        self.room = None
-        self.unaffected = pygame.sprite.Group()
-        self.affected = pygame.sprite.Group()
-
-    def setup_lists(self, room):
-        """ Sets up the list of what it can affect and what it cannot. """
-        pass
-
     def update(self):
         """ Updates the spore. """
         self.rect.x += self.change_x
         self.rect.y += self.change_y
-
-class Decompose_Spore(Spore):
-    """ A spore that decomposes things it touches. """
-    def __init__(self, player):
-        Spore.__init__(self, player)
-        self.image.fill(pygame.Color('chartreuse3'))
-
-    def setup_lists(self, room):
-        """ Sets up the list of what it can affect and what it cannot. """
-        
-        # First, the unaffected things
-        for thing in room.wall_list:
-            self.unaffected.add(thing)
-
-        for thing in room.deadlies:
-            self.unaffected.add(thing)
-
-        for thing in room.sludge:
-            self.unaffected.add(thing)
-
-        # Then the things it can affect
-        for thing in room.enemy_list:
-            self.affected.add(thing)
-
-    def update(self):
-        """ Updates the spore. """
-        self.rect.x += self.change_x
-        self.rect.y += self.change_y
-
-        unaffected_hit_list = pygame.sprite.spritecollide(self, self.unaffected, False)
-        for thing in unaffected_hit_list:
-            self.kill()
-
-        affected_hit_list = pygame.sprite.spritecollide(self, self.affected, True)
-        for thing in affected_hit_list:
-            self.kill()
-
-""" Code for Enemies and Enemy-related objects """
-
-class Edible(pygame.sprite.Sprite):
-    """ This is the base class; any new foods should be modified from this one.
-        Maybe make this an inherited class from Obstacle? """
-    def __init__(self, x, y, width, height, corr_points = 1):
-        """ Constructor for the wall that the player can run into. """
-        # Call the parent's constructor
-        pygame.sprite.Sprite.__init__(self)
-
-        # Set the visual
-        self.image = pygame.Surface([width, height])
-        self.image.fill(pygame.Color('deeppink2'))
-        self.corr_points = corr_points
-
-        # Make our top-left corner the passed-in location.
-        self.rect = self.image.get_rect()
-        self.rect.y = y
-        self.rect.x = x
-
-class Enemy(pygame.sprite.Sprite):
-    """ This is the base class for anything that is alive and should move that isn't the player. """
-    def __init__(self, x, y, width, height, speed = -2, distance = -200, mortality = True):
-        """ x = upper left corner x component
-            y = upper left corner y component
-            width = x dimension
-            height = y dimension 
-            speed = how quickly it moves in the x direction
-            distance = how far it can walk
-            mortality = does it kill you? """
-        # Call the parent's constructor
-        pygame.sprite.Sprite.__init__(self)
-
-        # Set default image
-        self.image = pygame.image.load('evil_dog1.jpg')
-        self.image = pygame.transform.scale(self.image, (width, height))
-
-        # Set position
-        self.rect = self.image.get_rect()
-        self.rect.y = y
-        self.rect.x = x
-
-        # Set the range of values it can go between
-        self.start_x = x
-        self.end_x = x + distance - self.rect.width
-
-        # Set speed vector
-        self.change_x = speed
-        self.change_y = 0
-
-        self.room = None
-
-    def calc_grav(self):
-        """ Calculate effect of gravity. """
-        if self.change_y == 0:
-            self.change_y = 1
-        else:
-            self.change_y += .35
- 
-        # See if we are on the ground.
-        if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
-            self.change_y = 0
-            self.rect.y = SCREEN_HEIGHT - self.rect.height
-
-    def update(self):
-        """ Update the enemy position. """
-        # Gravity
-        self.calc_grav()
-        # Move left/right
-        self.rect.x += self.change_x
- 
-        # Did this update cause it to hit a wall?
-        block_hit_list = pygame.sprite.spritecollide(self, self.room.wall_list, False)
-        for block in block_hit_list:
-            # If the enemy is moving right, set its right side to the left side of
-            # the item it hit
-            if self.change_x > 0:
-                self.rect.right = block.rect.left
-            else:
-                # Otherwise if it is moving left, do the opposite.
-                self.rect.left = block.rect.right
-
-            # Change direction
-            self.change_x = -self.change_x
-
-        # Check to see if it has hit the end of its range
-        if self.rect.x <= self.end_x or self.rect.x >= self.start_x:
-            self.change_x = -self.change_x
-
-        # Move up/down
-        self.rect.y += self.change_y
- 
-        # Check and see if it hit anything
-        block_hit_list = pygame.sprite.spritecollide(self, self.room.wall_list, False)
-        for block in block_hit_list:
- 
-            # Reset its position based on the top/bottom of the object.
-            if self.change_y > 0:
-                self.rect.bottom = block.rect.top
-            else:
-                self.rect.top = block.rect.bottom
-
-            # Stop its vertical movement
-            self.change_y = 0
-
-""" Code for the Obstacles and Stage """
 
 class Obstacle(pygame.sprite.Sprite):
     """ Immobile things that the player might run into. """
@@ -396,6 +235,24 @@ class Water(Obstacle):
         # Make the color correct
         self.image = pygame.Surface((w, h))
         self.image.fill(pygame.Color('cadetblue1'))
+
+class Edible(pygame.sprite.Sprite):
+    """ This is the base class; any new foods should be modified from this one.
+        Maybe make this an inherited class from Obstacle? """
+    def __init__(self, x, y, width, height, corr_points = 1):
+        """ Constructor for the wall that the player can run into. """
+        # Call the parent's constructor
+        pygame.sprite.Sprite.__init__(self)
+
+        # Set the visual
+        self.image = pygame.Surface([width, height])
+        self.image.fill(pygame.Color('deeppink2'))
+        self.corr_points = corr_points
+
+        # Make our top-left corner the passed-in location.
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
 
 class Room(object):
     """ This is a generic super-class used to define a level.
@@ -458,7 +315,6 @@ class Room_01(Room):
                  [200, 30, 200, 400, Ground],
                  [200, 30, 500, 300, Ground],
                  ]
-        deadlies = [[300, 50, 500, 550]]
 
         # Kills you when you touch it. Array with width, height, x, y, and class of obstacle
         deadly = [[300, 50, 500, 550, Lava]]
@@ -472,9 +328,6 @@ class Room_01(Room):
                         [10, 10, 200, 540, Edible],
                         [10, 10, 300, 540, Edible],
                         [10, 10, 400, 540, Edible]]
-
-        # Enemies on the level
-        enemy_list = [[75, 75, 425, 475, Enemy]]
  
         # Go through the array above and add obstacles
         for obstacle in room:
@@ -505,10 +358,6 @@ class Room_01(Room):
             block.player = self.player
             self.consumeable.add(block)
 
-        for enemy in enemy_list:
-            block = enemy[4](enemy[2], enemy[3], enemy[0], enemy[1])
-            self.enemy_list.add(block)
-
 def View():
     """ Main Program """
     pygame.init()
@@ -529,9 +378,6 @@ def View():
     # Set the current level
     current_room_no = 0
     current_room = room_list[current_room_no]
-
-    for enemy in current_room.enemy_list:
-        enemy.room = current_room
  
     active_sprite_list = pygame.sprite.Group()
     player.room = current_room
@@ -549,7 +395,7 @@ def View():
     # -------- Main Program Loop -----------
     while not done:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+            if event.type == pygame.QUIT:
                 done = True
  
             if event.type == pygame.KEYDOWN:
@@ -559,10 +405,6 @@ def View():
                     player.go_right()
                 if event.key == pygame.K_UP:
                     player.jump()
-                if event.key == pygame.K_SPACE:
-                    spore = Decompose_Spore(player)
-                    spore.setup_lists(current_room)
-                    active_sprite_list.add(spore)
  
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT and player.change_x < 0:

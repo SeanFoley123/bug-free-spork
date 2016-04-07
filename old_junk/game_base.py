@@ -1,6 +1,10 @@
 import math, sys
 import pygame
 from pygame.locals import *
+from Spores.py import *
+from LivingThings.py import *
+from Terrain.py import *
+from Room.py import *
 
 # -- Global constants
  
@@ -32,7 +36,7 @@ class MushroomGuy(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
  
         # Set height, width
-        self.image_list = [pygame.image.load('dog.jpg').convert(), pygame.image.load('evil_dog1.jpg')]
+        self.image_list = [pygame.image.load('dog.jpg'), pygame.image.load('evil_dog1.jpg')]
         for index, image in enumerate(self.image_list):
             self.image_list[index] = pygame.transform.scale(image, (100, 75))
         self.image = self.image_list[0]
@@ -55,8 +59,10 @@ class MushroomGuy(pygame.sprite.Sprite):
         # Set corruption points
         self.corruption = 0
 
-        # Set shot direction
+        # Set shot direction: 1 = right, -1 = left
         self.shot_dir = 1
+
+        self.wound = 0
  
     # Player-controlled movement:
     def go_left(self):
@@ -117,13 +123,20 @@ class MushroomGuy(pygame.sprite.Sprite):
         # Did this update cause us to hit a wall?
         block_hit_list = pygame.sprite.spritecollide(self, self.room.wall_list, False)
         for block in block_hit_list:
-            # If we are moving right, set our right side to the left side of
-            # the item we hit
-            if self.change_x > 0:
-                self.rect.right = block.rect.left
+            # Check if it is deadly
+            if block.mortality == True:
+                self.wound += 1
+                if self.wound > 10:
+                    self.kill()
             else:
-                # Otherwise if we are moving left, do the opposite.
-                self.rect.left = block.rect.right
+                # If we are moving right, set our right side to the left side of
+                # the item we hit
+                if self.change_x > 0:
+                    self.rect.right = block.rect.left
+                else:
+                    # Otherwise if we are moving left, do the opposite.
+                    self.rect.left = block.rect.right
+                self.wound = 0
 
         # Did this update cause us to hit a deadly object?
         block_hit_list = pygame.sprite.spritecollide(self, self.room.sludge, False)
@@ -136,25 +149,31 @@ class MushroomGuy(pygame.sprite.Sprite):
         # Check and see if we hit anything
         block_hit_list = pygame.sprite.spritecollide(self, self.room.wall_list, False)
         for block in block_hit_list:
- 
-            # Reset our position based on the top/bottom of the object.
-            if self.change_y > 0:
-                self.rect.bottom = block.rect.top
+            # Check if it is deadly
+            if block.mortality == True:
+                self.wound += 1
+                if self.wound > 10:
+                    self.kill()
             else:
-                self.rect.top = block.rect.bottom
+                # Reset our position based on the top/bottom of the object.
+                if self.change_y > 0:
+                    self.rect.bottom = block.rect.top
+                else:
+                    self.rect.top = block.rect.bottom
 
-            # Stop our vertical movement
-            self.change_y = 0
+                    # Stop our vertical movement
+                self.change_y = 0
+                self.wound = 0
 
         # Check if we are stuck in something viscous and slow us down if we are
         block_hit_list = pygame.sprite.spritecollide(self, self.room.sludge, False)
         for block in block_hit_list:
         	self.rect.y -= self.change_y*block.visc
 
-        # Check to see if we hit something deadly
-        block_hit_list = pygame.sprite.spritecollide(self, self.room.deadlies, False)
-        for block in block_hit_list:
-            self.kill()
+        enemy_hit_list = pygame.sprite.spritecollide(self, self.room.enemy_list, False)
+        for enemy in enemy_hit_list:
+            if enemy.mortality == True:
+                self.kill()
 
         # Check to see if we ate anything
         food_hit_list = pygame.sprite.spritecollide(self, self.room.consumeable, True)
@@ -218,9 +237,6 @@ class Decompose_Spore(Spore):
         
         # First, the unaffected things
         for thing in room.wall_list:
-            self.unaffected.add(thing)
-
-        for thing in room.deadlies:
             self.unaffected.add(thing)
 
         for thing in room.sludge:
@@ -293,6 +309,7 @@ class Enemy(pygame.sprite.Sprite):
         self.change_x = speed
         self.change_y = 0
 
+        self.mortality = mortality
         self.room = None
 
     def calc_grav(self):
@@ -382,7 +399,7 @@ class Ground(Obstacle):
 class Lava(Obstacle):
     """ Deadly red terrain. """
     def __init__(self, x, y, w, h):
-		Obstacle.__init__(self, x, y, w, h, .5, False)
+		Obstacle.__init__(self, x, y, w, h, .5, True)
 
 		# Make the color correct
 		self.image = pygame.Surface((w, h))
@@ -407,7 +424,6 @@ class Room(object):
             collide with the player. """
         self.wall_list = pygame.sprite.Group()
         self.enemy_list = pygame.sprite.Group()
-        self.deadlies = pygame.sprite.Group()
         self.sludge = pygame.sprite.Group()
         self.consumeable = pygame.sprite.Group()
         self.player = player
@@ -420,7 +436,6 @@ class Room(object):
         """ Update everything in this level."""
         self.wall_list.update()
         self.enemy_list.update()
-        self.deadlies.update()
         self.sludge.update()
         self.consumeable.update()
  
@@ -433,7 +448,6 @@ class Room(object):
         # Draw all the sprite lists that we have
         self.wall_list.draw(screen)
         self.enemy_list.draw(screen)
-        self.deadlies.draw(screen)
         self.sludge.draw(screen)
         self.consumeable.draw(screen)
 
@@ -453,15 +467,12 @@ class Room_01(Room):
         # Call the parent constructor
         Room.__init__(self, player)
  
-        # Solid, non-deadly objects. Array with width, height, x, y, and class of obstacle
+        # Solid objects. Array with width, height, x, y, and class of obstacle
         room = [[500, 50, 0, 550, Ground],
                  [200, 30, 200, 400, Ground],
                  [200, 30, 500, 300, Ground],
+                 [300, 50, 500, 550, Lava]
                  ]
-        deadlies = [[300, 50, 500, 550]]
-
-        # Kills you when you touch it. Array with width, height, x, y, and class of obstacle
-        deadly = [[300, 50, 500, 550, Lava]]
 
         # Objects that hinder movement. Array with width, height, x, y, and class of obstacle
         sludge = [[300, 100, 400, 350, Water]]
@@ -483,13 +494,6 @@ class Room_01(Room):
             block.rect.y = obstacle[3]
             block.player = self.player
             self.wall_list.add(block)
-
-        for obstacle in deadly:
- 			block = obstacle[4](obstacle[2], obstacle[3], obstacle[0], obstacle[1])
- 			block.rect.x = obstacle[2]
- 			block.rect.y = obstacle[3]
- 			block.player = self.player
- 			self.deadlies.add(block)
 
         for obstacle in sludge:
             block = obstacle[4](obstacle[2], obstacle[3], obstacle[0], obstacle[1])
