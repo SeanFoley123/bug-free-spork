@@ -30,7 +30,7 @@ class MushroomGuy(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
  
         # Set height, width
-        self.image_list = [pygame.image.load('dog.jpg'), pygame.image.load('evil_dog1.jpg')]
+        self.image_list = [pygame.image.load('dog.jpg').convert(), pygame.image.load('evil_dog1.jpg')]
         for index, image in enumerate(self.image_list):
             self.image_list[index] = pygame.transform.scale(image, (100, 75))
         self.image = self.image_list[0]
