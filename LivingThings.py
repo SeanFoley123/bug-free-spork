@@ -17,35 +17,66 @@ SCREEN_HEIGHT = 600
 SCREEN_W_MID = SCREEN_WIDTH/2
 SCREEN_H_MID = SCREEN_HEIGHT/2
 
-class MushroomGuy(pygame.sprite.Sprite):
+class Living(pygame.sprite.Sprite):
+    """ This class is all the things that move. """
+    def __init__(self, x, y, width, height, image_file_name, initial_speed):
+        """ x = upper left corner x component
+            y = upper left corner y component
+            width = x dimension to resize image to
+            height = y dimension to resize image to
+            image_file_name = a string of the image file name to load
+            initial_speed = how quickly it moves in the x direction
+        """
+        # Call the parent's constructor
+        pygame.sprite.Sprite.__init__(self)
+
+        # Set default image
+        self.image = pygame.image.load(image_file_name)
+        self.image = pygame.transform.scale(self.image, (width, height))
+
+        # Set position
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
+
+        # Set initial_speed vector
+        self.change_x = initial_speed
+        self.change_y = 0
+
+        self.room = None
+
+    def calc_grav(self):
+        """ Calculate effect of gravity. """
+        if self.change_y == 0:
+            self.change_y = 1
+        else:
+            self.change_y += .35
+ 
+        # See if we are on the ground.
+        if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
+            self.change_y = 0
+            self.rect.y = SCREEN_HEIGHT - self.rect.height
+
+    def update(self):
+        """ Makes sure all living things can update """
+        pass
+
+class MushroomGuy(Living):
     """ This class represents the bar at the bottom that the player
     controls. """
  
     # Constructor function
     def __init__(self):
         # Call the parent's constructor
-        pygame.sprite.Sprite.__init__(self)
+        Living.__init__(self, 0, 0, 100, 75, 'dog.jpg', 0)
  
         # Set height, width
         self.image_list = [pygame.image.load('dog.jpg').convert(), pygame.image.load('evil_dog1.jpg').convert()]
         for index, image in enumerate(self.image_list):
             self.image_list[index] = pygame.transform.scale(image, (100, 75))
-        self.image = self.image_list[0]
-        print self.image
- 
-        # Make our top-left corner the passed-in location.
-        self.rect = self.image.get_rect()
-        print self.rect
-        self.rect.y = 0
-        self.rect.x = 0
  
         # Set speed vector
         self.speed = 6
-        self.change_x = 0
-        self.change_y = 0
-
-        # List of sprites we can bump against
-        self.room = None
 
         # Set corruption points
         self.corruption = 0
@@ -88,18 +119,6 @@ class MushroomGuy(pygame.sprite.Sprite):
         # If it is ok to jump, set our speed upwards
         if len(wall_hit_list) > 0 or self.rect.bottom >= SCREEN_HEIGHT:
             self.change_y = -10
-
-    def calc_grav(self):
-        """ Calculate effect of gravity. """
-        if self.change_y == 0:
-            self.change_y = 1
-        else:
-            self.change_y += .35
- 
-        # See if we are on the ground.
-        if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
-            self.change_y = 0
-            self.rect.y = SCREEN_HEIGHT - self.rect.height
 
     def how_corrupt(self):
         """ Changes the image based on the corruption level of the player. """
@@ -176,7 +195,7 @@ class MushroomGuy(pygame.sprite.Sprite):
         self.how_corrupt()
 
 
-class Enemy(pygame.sprite.Sprite):
+class Enemy(Living):
     """ This is the base class for anything that is alive and should move that isn't the player. """
     def __init__(self, x, y, width, height, speed = -2, distance = -200, mortality = True):
         """ x = upper left corner x component
@@ -187,16 +206,7 @@ class Enemy(pygame.sprite.Sprite):
             distance = how far it can walk
             mortality = does it kill you? """
         # Call the parent's constructor
-        pygame.sprite.Sprite.__init__(self)
-
-        # Set default image
-        self.image = pygame.image.load('evil_dog1.jpg')
-        self.image = pygame.transform.scale(self.image, (width, height))
-
-        # Set position
-        self.rect = self.image.get_rect()
-        self.rect.y = y
-        self.rect.x = x
+        Living.__init__(self, x, y, width, height, 'evil_dog1.jpg', speed)
 
         # Set the range of values it can go between
         self.start_x = x
@@ -207,7 +217,6 @@ class Enemy(pygame.sprite.Sprite):
         self.change_y = 0
 
         self.mortality = mortality
-        self.room = None
 
     def calc_grav(self):
         """ Calculate effect of gravity. """
