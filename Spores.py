@@ -2,6 +2,7 @@
 import math, sys
 import pygame
 from pygame.locals import *
+from LivingThings import *
 
 # -- Global constants
  
@@ -77,6 +78,17 @@ class Decompose_Spore(Spore):
         for thing in room.enemy_list:
             self.affected.add(thing)
 
+    def kill_it(self, other, consumeable_type):
+        """ Kills the creature and leaves a food in its place """
+        new_food = consumeable_type(other.rect.x, other.rect.y, 50, 50)
+        height_change = other.rect.height - 50
+        new_food.rect.x = other.rect.x
+        new_food.rect.y = other.rect.y + height_change
+        new_food.player = other.room.player
+        other.room.consumeable.add(new_food)
+        other.kill()
+        self.kill()
+
     def update(self):
         """ Updates the spore. """
         self.rect.x += self.change_x
@@ -86,6 +98,6 @@ class Decompose_Spore(Spore):
         for thing in unaffected_hit_list:
             self.kill()
 
-        affected_hit_list = pygame.sprite.spritecollide(self, self.affected, True)
+        affected_hit_list = pygame.sprite.spritecollide(self, self.affected, False)
         for thing in affected_hit_list:
-            self.kill()
+            self.kill_it(thing, Edible)

@@ -218,18 +218,6 @@ class Enemy(Living):
 
         self.mortality = mortality
 
-    def calc_grav(self):
-        """ Calculate effect of gravity. """
-        if self.change_y == 0:
-            self.change_y = 1
-        else:
-            self.change_y += .35
- 
-        # See if we are on the ground.
-        if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
-            self.change_y = 0
-            self.rect.y = SCREEN_HEIGHT - self.rect.height
-
     def update(self):
         """ Update the enemy position. """
         # Gravity
@@ -254,7 +242,6 @@ class Enemy(Living):
         # Check to see if it has hit the end of its range
         if self.rect.x <= self.end_x or self.rect.x >= self.start_x:
             self.change_x = -self.change_x
-
         # Move up/down
         self.rect.y += self.change_y
  
