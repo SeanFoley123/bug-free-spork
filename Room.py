@@ -44,17 +44,17 @@ class Room(object):
         self.sludge.update()
         self.consumeable.update()
  
-    def draw(self, screen):
+    def draw(self):
         """ Draw everything on this level. """
  
         # Draw the background
-        screen.fill(BLUE)
+        self.world.fill(BLUE)
  
         # Draw all the sprite lists that we have
-        self.wall_list.draw(screen)
-        self.enemy_list.draw(screen)
-        self.sludge.draw(screen)
-        self.consumeable.draw(screen)
+        self.wall_list.draw(self.world)
+        self.enemy_list.draw(self.world)
+        self.sludge.draw(self.world)
+        self.consumeable.draw(self.world)
 
     def draw_end(self, screen):
         """ Draw the game over screen. """
@@ -71,10 +71,13 @@ class Room_01(Room):
  
         # Call the parent constructor
         Room.__init__(self, player)
- 
+        
+        self.world_size = (1000, 600)
+        self.world = pygame.Surface(self.world_size)
+
         # Solid objects. Array with width, height, x, y, and class of obstacle
         room = [[500, 50, 0, 550, Ground],
-                 [200, 30, 200, 400, Ground],
+                 [180, 30, 200, 400, Ground],
                  [200, 30, 500, 300, Ground],
                  [300, 50, 500, 550, Lava]
                  ]
