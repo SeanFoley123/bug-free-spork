@@ -31,7 +31,10 @@ class Room(object):
         self.enemy_list = pygame.sprite.Group()
         self.sludge = pygame.sprite.Group()
         self.consumeable = pygame.sprite.Group()
+        self.can_climb = pygame.sprite.Group()
         self.player = player
+        self.spore_list = [Decompose_Spore, Ledge_Spore]
+        self.active_spore = self.spore_list[0]
          
         # Background image
         self.background = None
@@ -43,6 +46,7 @@ class Room(object):
         self.enemy_list.update()
         self.sludge.update()
         self.consumeable.update()
+        self.can_climb.update()
  
     def draw(self):
         """ Draw everything on this level. """
@@ -55,6 +59,7 @@ class Room(object):
         self.enemy_list.draw(self.world)
         self.sludge.draw(self.world)
         self.consumeable.draw(self.world)
+        self.can_climb.draw(self.world)
 
     def draw_end(self, screen):
         """ Draw the game over screen. """
@@ -79,6 +84,7 @@ class Room_01(Room):
         room = [[500, 50, 0, 550, Ground],
                  [180, 30, 200, 400, Ground],
                  [200, 30, 500, 300, Ground],
+                 [100, 400, 900, 200, Ground],
                  [300, 50, 500, 550, Lava]
                  ]
 

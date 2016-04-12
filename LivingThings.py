@@ -74,11 +74,12 @@ class MushroomGuy(Living):
         self.image_list = [pygame.image.load('dog.jpg').convert(), pygame.image.load('evil_dog1.jpg').convert()]
         for index, image in enumerate(self.image_list):
             self.image_list[index] = pygame.transform.scale(image, (100, 75))
- 
-        # Set speed vector
-        self.speed = 6
 
-        # Set corruption points
+        self.speed = 6
+        self.climb_okay = False
+
+        # Corruption starts at zero. Eating mushrooms increases corruption. As corruption increases,
+        #  player avatar image changes (every 5 points)
         self.corruption = 0
 
         # Set shot direction: 1 = right, -1 = left
@@ -123,6 +124,9 @@ class MushroomGuy(Living):
     def how_corrupt(self):
         """ Changes the image based on the corruption level of the player. """
         self.image = pygame.transform.scale(self.image_list[self.corruption/5], (100, 75))
+
+    def climb(self):
+        self.change_y = -5
  
     def update(self):
         """ Update the player position. """
@@ -190,6 +194,12 @@ class MushroomGuy(Living):
         food_hit_list = pygame.sprite.spritecollide(self, self.room.consumeable, True)
         for food in food_hit_list:
             self.corruption += food.corr_points
+
+        climbing_list = pygame.sprite.spritecollide(self, self.room.can_climb, False)
+        if climbing_list == []:
+            self.climb_okay = False
+        else:
+            self.climb_okay = True
 
         # Update the picture if necessary
         self.how_corrupt()

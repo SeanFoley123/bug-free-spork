@@ -44,7 +44,7 @@ class Spore(pygame.sprite.Sprite):
         self.unaffected = pygame.sprite.Group()
         self.affected = pygame.sprite.Group()
 
-    def setup_lists(self, room):
+    def setup_lists(self):
         """ Sets up the list of what it can affect and what it cannot. """
         pass
 
@@ -59,18 +59,18 @@ class Decompose_Spore(Spore):
         Spore.__init__(self, player)
         self.image.fill(pygame.Color('chartreuse3'))
 
-    def setup_lists(self, room):
+    def setup_lists(self):
         """ Sets up the list of what it can affect and what it cannot. """
         
-        # First, the unaffected things
-        for thing in room.wall_list:
+        # Decompose spores do not affect terrain like ground or water
+        for thing in self.room.wall_list:
             self.unaffected.add(thing)
 
-        for thing in room.sludge:
+        for thing in self.room.sludge:
             self.unaffected.add(thing)
 
-        # Then the things it can affect
-        for thing in room.enemy_list:
+        # It does, however, destroy enemies and things that are alive. Later implement logs.
+        for thing in self.room.enemy_list:
             self.affected.add(thing)
 
     def kill_it(self, other, consumeable_type):
@@ -86,8 +86,7 @@ class Decompose_Spore(Spore):
 
     def update(self):
         """ Updates the spore. """
-        self.rect.x += self.change_x
-        self.rect.y += self.change_y
+        Spore.update(self)
 
         unaffected_hit_list = pygame.sprite.spritecollide(self, self.unaffected, False)
         for thing in unaffected_hit_list:
@@ -96,3 +95,62 @@ class Decompose_Spore(Spore):
         affected_hit_list = pygame.sprite.spritecollide(self, self.affected, False)
         for thing in affected_hit_list:
             self.kill_it(thing, Edible)
+
+class Ledge_Spore(Spore):
+    """ Creates ledge-like fungi that allow you to climb up a surface. Cover the entire surface. """
+    def __init__(self, player):
+        Spore.__init__(self, player)
+        self.image.fill(pygame.Color('darkgoldenrod4'))
+
+    def setup_lists(self):
+        """ Sets up the list of what it can affect and what it cannot. """
+        
+        # Ledge spores affect walls, but not lava, water, or enemies.
+        for thing in self.room.wall_list:
+            if thing.mortality == False:
+                self.affected.add(thing)
+            else:
+                self.unaffected.add(thing)
+
+        for thing in self.room.sludge:
+            self.unaffected.add(thing)
+
+        for thing in self.room.enemy_list:
+            self.unaffected.add(thing)
+
+    def grow_fungi(self, wall):
+        """ Creates a a surface on the wall which the player can climb up. """
+        if self.direction == 1:
+            ledge_fungus = Ledge(wall.rect.x - 50, wall.rect.y, wall.rect.height)
+            self.room.can_climb.add(ledge_fungus)
+        else:
+            ledge_fungus = Ledge(wall.rect.x + wall.rect.width + 50, wall.rect.y, wall.rect.height)
+            self.room.can_climb.add(ledge_fungus)
+
+    def update(self):
+        """ Updates the spore. """
+        Spore.update(self)
+
+        unaffected_hit_list = pygame.sprite.spritecollide(self, self.unaffected, False)
+        for thing in unaffected_hit_list:
+            self.kill()
+
+        affected_hit_list = pygame.sprite.spritecollide(self, self.affected, False)
+        for thing in affected_hit_list:
+            self.grow_fungi(thing)
+
+class Ledge(pygame.sprite.Sprite):
+    """ A set of fungi which a player can climb up. """
+    def __init__(self, x, y, height):
+        """ Constructor for the wall that the player can run into. """
+        # Call the parent's constructor
+        pygame.sprite.Sprite.__init__(self)
+ 
+        # Make a blue wall, of the size specified in the parameters
+        self.image = pygame.Surface([50, height])
+        self.image.fill(pygame.Color('darkgoldenrod4'))
+ 
+        # Make our top-left corner the passed-in location.
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x

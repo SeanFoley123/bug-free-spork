@@ -67,9 +67,18 @@ class View(object):
                         self.player.go_right()
                     if event.key == pygame.K_UP:
                         self.player.jump()
+                    if event.key == pygame.K_q:
+                        # Switches the active projectile spore into the decomposition spore
+                        self.current_room.active_spore = self.current_room.spore_list[0]
+                    if event.key == pygame.K_e:
+                        # Switches the active projectile spore to the ledge-maker
+                        self.current_room.active_spore = self.current_room.spore_list[1]
+                    if event.key == pygame.K_c and self.player.climb_okay == True:
+                        self.player.climb()
                     if event.key == pygame.K_SPACE:
-                        spore = Decompose_Spore(self.player)
-                        spore.setup_lists(self.current_room)
+                        spore = self.current_room.active_spore(self.player)
+                        spore.room = self.current_room
+                        spore.setup_lists()
                         self.active_sprite_list.add(spore)
      
                 if event.type == pygame.KEYUP:
