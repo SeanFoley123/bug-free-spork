@@ -195,11 +195,10 @@ class MushroomGuy(Living):
         for food in food_hit_list:
             self.corruption += food.corr_points
 
-        climbing_list = pygame.sprite.spritecollide(self, self.room.can_climb, False)
-        if climbing_list == []:
-            self.climb_okay = False
-        else:
+        if pygame.sprite.spritecollide(self, self.room.can_climb, False) != []:
             self.climb_okay = True
+        else:
+            self.climb_okay = False
 
         # Update the picture if necessary
         self.how_corrupt()
