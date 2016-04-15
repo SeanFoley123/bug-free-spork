@@ -21,19 +21,9 @@ SCREEN_H_MID = SCREEN_HEIGHT/2
 # corner of the current room. All sprites are defined at the center of their bounding rectangles, which might make rolling
 # over easier.
 
-class View(object):
+class Controller(object):
     """ Main Program """
     def __init__(self):
-        pygame.init()
-        
-        # Used to manage how fast the screen updates
-        self.clock = pygame.time.Clock()
-        
-        # Set the height and width of the screen
-        size = [SCREEN_WIDTH, SCREEN_HEIGHT]
-        self.screen = pygame.display.set_mode(size)
-     
-        pygame.display.set_caption("Jump Jump Jump")
         
         # Create the player
         self.player = MushroomGuy()
@@ -48,75 +38,52 @@ class View(object):
  
         self.active_sprite_list = pygame.sprite.Group()
         self.active_sprite_list.add(self.player)
- 
-    def play(self):
-        # Loop until the user clicks the close button.
-        done = False
-        # Where relative to the screen the world should be blit
-        position = (0, 0)
-        # -------- Main Program Loop -----------
-        while not done:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                    done = True
-     
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        self.player.go_left()
-                    if event.key == pygame.K_RIGHT:
-                        self.player.go_right()
-                    if event.key == pygame.K_UP:
-                        self.player.jump()
-                    if event.key == pygame.K_q:
-                        # Switches the active projectile spore into the decomposition spore
-                        self.current_room.active_spore = self.current_room.spore_list[0]
-                    if event.key == pygame.K_e:
-                        # Switches the active projectile spore to the ledge-maker
-                        self.current_room.active_spore = self.current_room.spore_list[1]
-                    if event.key == pygame.K_c and self.player.climb_okay == True:
-                        self.player.climb()
-                    if event.key == pygame.K_SPACE:
-                        spore = self.current_room.active_spore(self.player)
-                        spore.room = self.current_room
-                        spore.setup_lists()
-                        self.active_sprite_list.add(spore)
-     
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT and self.player.change_x < 0:
-                        self.player.stop()
-                    if event.key == pygame.K_RIGHT and self.player.change_x > 0:
-                        self.player.stop()
-     
-            # Update the player.
-            self.active_sprite_list.update()
-     
-            # Update items in the level
-            self.current_room.update()
-     
-            # Stop the player from going off the sides
-            self.player.rect.centerx = min(max(self.player.rect.centerx, self.player.rect.w/2), self.current_room.world_size[0]-self.player.rect.w/2)
-     
-            # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
-            if self.player not in self.active_sprite_list:
-                self.current_room.draw_end(self.screen)
-            else:
-                self.current_room.draw()
-                self.active_sprite_list.draw(self.current_room.world)
-                position = (max(min(SCREEN_W_MID-self.player.rect.centerx, 0), SCREEN_WIDTH - self.current_room.world_size[0]),
-                max(min(SCREEN_H_MID-self.player.rect.centery, 0), SCREEN_HEIGHT - self.current_room.world_size[1]))
-                self.screen.blit(self.current_room.world, position)
-            # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
-     
-            # Limit to 60 frames per second
-            self.clock.tick(60)
-     
-            # Go ahead and update the screen with what we've drawn.
-            pygame.display.flip()
-     
-        # Be IDLE friendly. If you forget this line, the program will 'hang'
-        # on exit.
-        pygame.quit()
 
+        # Loop until the user clicks the close button.
+        self.done = False
+
+    def update(self):
+        # -------- Main Program Loop -----------
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                self.done = True
+ 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    self.player.go_left()
+                if event.key == pygame.K_RIGHT:
+                    self.player.go_right()
+                if event.key == pygame.K_UP:
+                    self.player.jump()
+                if event.key == pygame.K_q:
+                    # Switches the active projectile spore into the decomposition spore
+                    self.current_room.active_spore = self.current_room.spore_list[0]
+                if event.key == pygame.K_e:
+                    # Switches the active projectile spore to the ledge-maker
+                    self.current_room.active_spore = self.current_room.spore_list[1]
+                if event.key == pygame.K_c and self.player.climb_okay == True:
+                    self.player.climb()
+                if event.key == pygame.K_SPACE:
+                    spore = self.current_room.active_spore(self.player)
+                    spore.room = self.current_room
+                    spore.setup_lists()
+                    self.active_sprite_list.add(spore)
+ 
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT and self.player.change_x < 0:
+                    self.player.stop()
+                if event.key == pygame.K_RIGHT and self.player.change_x > 0:
+                    self.player.stop()
+     
+        # Update the player.
+        self.active_sprite_list.update()
+ 
+        # Update items in the level
+        self.current_room.update()
+ 
+        # Stop the player from going off the sides
+        self.player.rect.centerx = min(max(self.player.rect.centerx, self.player.rect.w/2), self.current_room.world_size[0]-self.player.rect.w/2)
+          
     def change_room(self, direction):
         # Adds direction to current_room_no and initializes our new room
         self.current_room_no += direction
@@ -129,6 +96,55 @@ class View(object):
         self.player.rect.x = 0
         self.player.rect.y = 0
 
+class View(object):
+    def __init__(self):
+        # Set the height and width of the screen
+        size = [SCREEN_WIDTH, SCREEN_HEIGHT]
+        self.screen = pygame.display.set_mode(size)
+     
+        pygame.display.set_caption("Jump Jump Jump")
+
+        # Where relative to the screen the world should be blit
+        self.position = (0, 0)
+
+    def update(self, other):
+            # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
+            if other.player not in other.active_sprite_list:
+                self.draw_end()
+            else:
+                other.current_room.draw()
+                other.active_sprite_list.draw(other.current_room.world)
+                self.position = (max(min(SCREEN_W_MID-other.player.rect.centerx, 0), SCREEN_WIDTH - other.current_room.world_size[0]),
+                max(min(SCREEN_H_MID-other.player.rect.centery, 0), SCREEN_HEIGHT - other.current_room.world_size[1]))
+                self.screen.blit(other.current_room.world, self.position)
+            # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
+
+            # Go ahead and update the screen with what we've drawn.
+            pygame.display.flip()
+
+    def draw_end(self):
+        """ Draw the game over screen. """
+        self.screen.fill(BLACK) 
+        game_over_pic = pygame.transform.scale(pygame.image.load('game_over_mushroom.jpg').convert(), [350, 350])
+        self.screen.blit(game_over_pic, (SCREEN_W_MID-175, SCREEN_H_MID-175))
+
 if __name__ == "__main__":
+    pygame.init()
+        
+    # Used to manage how fast the screen updates
+    clock = pygame.time.Clock()
+
     view = View()
-    view.play()
+    controller = Controller()
+
+    while not controller.done:
+        controller.update()
+        view.update(controller)
+        # Limit to 60 frames per second
+        clock.tick(60)
+
+    # Be IDLE friendly. If you forget this line, the program will 'hang'
+    # on exit.
+    pygame.quit()
+
+    #view.play()
