@@ -1,2 +1,0 @@
-http://www.pygame.org/docs/tut/tom/MakeGames.html
-https://sites.google.com/site/meticulosslacker/pygame-thecolors

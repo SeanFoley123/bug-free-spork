@@ -47,7 +47,7 @@ class Room(object):
         self.sludge.update()
         self.consumeable.update()
         self.can_climb.update()
- 
+
     def draw(self):
         """ Draw everything on this level. """
  
@@ -61,12 +61,6 @@ class Room(object):
         self.consumeable.draw(self.world)
         self.can_climb.draw(self.world)
 
-    def draw_end(self, screen):
-        """ Draw the game over screen. """
-        screen.fill(BLACK) 
-        game_over_pic = pygame.transform.scale(pygame.image.load('game_over_mushroom.jpg').convert(), [350, 350])
-        screen.blit(game_over_pic, (SCREEN_W_MID-175, SCREEN_H_MID-175))
- 
 # Create platforms for the level
 class Room_01(Room):
     """ Definition for level 1. """
@@ -85,11 +79,14 @@ class Room_01(Room):
                  [180, 30, 200, 400, Ground],
                  [200, 30, 500, 300, Ground],
                  [100, 400, 900, 200, Ground],
-                 [300, 50, 500, 550, Lava]
+                 #[150, 90, 650, 550, Lava]
                  ]
 
-        # Objects that hinder movement. Array with width, height, x, y, and class of obstacle
-        sludge = [[300, 100, 400, 350, Water]]
+        # Objects that hinder movement (and drown the player if they are not flipped) 
+        # Array with width, height, x, y, and class of obstacle
+        sludge = [
+                 #[300, 100, 400, 350, Water],
+                 [200, 50, 500, 550, Water]]
 
         # Objects you can eat. Array with width, height, x, y, and class of obstacle
         consumeable = [[50, 50, 450, 500, Edible],

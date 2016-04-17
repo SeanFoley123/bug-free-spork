@@ -77,6 +77,7 @@ class MushroomGuy(Living):
 
         self.speed = 6
         self.climb_okay = False
+        self.flipped = False
 
         # Corruption starts at zero. Eating mushrooms increases corruption. As corruption increases,
         #  player avatar image changes (every 5 points)
@@ -87,7 +88,11 @@ class MushroomGuy(Living):
 
         self.wound = 0
         self.max_wound = 5
- 
+        
+        #sets drowning for sludge
+        self.drown = 0
+        self.max_drown = 10
+
     # Player-controlled movement:
     def go_left(self):
         """ Called when the user hits the left arrow. """
@@ -121,15 +126,28 @@ class MushroomGuy(Living):
         if len(wall_hit_list) > 0 or self.rect.bottom >= SCREEN_HEIGHT:
             self.change_y = -10
 
+    #TODO: possible better way to do this: need to discuss
+    # a better way to do this may be to keep track of the current sprite in a variable  
+    # and have both how_corrupt and draw_flipped use that variable
+
     def how_corrupt(self):
         """ Changes the image based on the corruption level of the player. """
         self.image = pygame.transform.scale(self.image_list[self.corruption/5], (100, 75))
+
+    def draw_flipped(self):
+        """Flips the player's sprite based on the value assigned to self.flipped (controlled by keypress)"""
+        if self.flipped:
+            self.image = pygame.transform.flip(self.image_list[self.corruption/5], False, True)
 
     def climb(self):
         self.change_y = -5
  
     def update(self):
         """ Update the player position. """
+
+        #print self.flipped
+        #print pygame.sprite.spritecollide(self, self.room.sludge, False)
+
         # Gravity
         self.calc_grav()
         # Move left/right
@@ -169,6 +187,17 @@ class MushroomGuy(Living):
                 self.wound += 1
                 if self.wound > self.max_wound:
                     self.kill()
+
+            #drowns if you are in the water and aren't flipped
+            if pygame.sprite.spritecollide(self, self.room.sludge, False) != [] and (self.flipped == False):
+                self.drown += 1
+                #print self.room.sludge
+            if self.drown > self.max_drown:
+                self.kill()
+
+            #TODO: for some reason, spritecollide only works when you're crossing the left portion of the rect. 
+            #I have no clue why. It doesn't matter with a short max_drown, but it needs to be fixed.
+
             else:
                 # Reset our position based on the top/bottom of the object.
                 if self.change_y > 0:
@@ -179,6 +208,8 @@ class MushroomGuy(Living):
                     # Stop our vertical movement
                 self.change_y = 0
                 self.wound = 0
+
+
 
         # Check if we are stuck in something viscous and slow us down if we are
         block_hit_list = pygame.sprite.spritecollide(self, self.room.sludge, False)
@@ -195,13 +226,16 @@ class MushroomGuy(Living):
         for food in food_hit_list:
             self.corruption += food.corr_points
 
+        self.how_corrupt()
+        self.draw_flipped()
+
+        #checks if you can climb, sets value
         if pygame.sprite.spritecollide(self, self.room.can_climb, False) != []:
             self.climb_okay = True
         else:
             self.climb_okay = False
 
         # Update the picture if necessary
-        self.how_corrupt()
 
 
 class Enemy(Living):
