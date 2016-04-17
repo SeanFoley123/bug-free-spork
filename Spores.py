@@ -138,6 +138,7 @@ class Ledge_Spore(Spore):
         affected_hit_list = pygame.sprite.spritecollide(self, self.affected, False)
         for thing in affected_hit_list:
             self.grow_fungi(thing)
+            self.kill()
 
 class Ledge(pygame.sprite.Sprite):
     """ A set of fungi which a player can climb up. """
@@ -154,3 +155,4 @@ class Ledge(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
+        self.climb_okay = True
