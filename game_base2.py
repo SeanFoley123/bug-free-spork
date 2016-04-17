@@ -68,7 +68,12 @@ class Controller(object):
                     spore.room = self.current_room
                     spore.setup_lists()
                     self.active_sprite_list.add(spore)
- 
+                #toggles the flip state
+                if event.key == pygame.K_f:
+                    self.player.flipped = not self.player.flipped
+                    #print self.player.flipped
+                if self.player.flipped:
+                    self.image = pygame.transform.flip(self.player.image_list[self.player.corruption/5], False, True)
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT and self.player.change_x < 0:
                     self.player.stop()

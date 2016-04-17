@@ -12,6 +12,9 @@ SCREEN_HEIGHT = 600
 SCREEN_W_MID = SCREEN_WIDTH/2
 SCREEN_H_MID = SCREEN_HEIGHT/2
 
+#TODO: there is a bug where after a very long time, the spores loop back around the screen. 
+#we need to kill the spores when they hit the edge of the screen
+
 class Spore(pygame.sprite.Sprite):
     """ Base class of spores. 
 
