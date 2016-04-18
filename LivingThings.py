@@ -44,19 +44,19 @@ class Living(pygame.sprite.Sprite):
         self.change_y = 0
 
         self.room = None
+        self.flipped = False
+        self.wet = False
 
     def calc_grav(self):
         """ Calculate effect of gravity. """
-        if self.change_y == 0:
-            self.change_y = 1
+        if self.wet and self.flipped:
+            self.change_y -= .2
         else:
-            self.change_y += .35
+            if self.change_y == 0:
+                self.change_y = 1
+            else:
+                self.change_y += .35
  
-        # See if we are on the ground.
-        if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
-            self.change_y = 0
-            self.rect.y = SCREEN_HEIGHT - self.rect.height
-
     def update(self):
         """ Makes sure all living things can update """
         pass
@@ -76,7 +76,6 @@ class MushroomGuy(Living):
             self.image_list[index] = pygame.transform.scale(image, (100, 75))
 
         self.speed = 6
-        self.flipped = False
 
         # Corruption starts at zero. Eating mushrooms increases corruption. As corruption increases,
         #  player avatar image changes (every 5 points)
@@ -90,7 +89,7 @@ class MushroomGuy(Living):
         
         #sets drowning for sludge
         self.drown = 0
-        self.max_drown = 10
+        self.max_drown = 100
 
     # Player-controlled movement:
     def go_left(self):
@@ -123,7 +122,7 @@ class MushroomGuy(Living):
  
         # If it is ok to jump, set our speed upwards
         # That's a really cool way to do this
-        if len(wall_hit_list) > 0:
+        if len(wall_hit_list) > 0 and not self.flipped:
             self.change_y = -10
 
     #TODO: possible better way to do this: need to discuss
@@ -147,10 +146,11 @@ class MushroomGuy(Living):
         """ Update the player position. """
         #print self.flipped
         #print pygame.sprite.spritecollide(self, self.room.sludge, False)
-
         # Gravity
         self.calc_grav()
         # Move left/right
+        if self.flipped and not self.wet:
+            self.change_x = 0
         self.rect.x += self.change_x
  
         # Did this update cause us to hit a wall?
@@ -175,7 +175,7 @@ class MushroomGuy(Living):
         # Check and see if we hit anything
         block_hit_list = pygame.sprite.spritecollide(self, self.room.wall_list, False)
         for block in block_hit_list:
-            # Check if it is deadly
+            # Check if it's deadly ISUE: You can survive lava if you're at the bottom of a lake
             if block.mortality == True:
                 self.wound += 1
 
@@ -192,10 +192,13 @@ class MushroomGuy(Living):
 
         # Check if we are stuck in something viscous and slow us down + drown us if we are
         block_hit_list = pygame.sprite.spritecollide(self, self.room.sludge, False)
-        if block_hit_list and not self.flipped:
-            self.drown += 1
+        if block_hit_list:
+            self.wet = True
+            if not self.flipped:
+                self.drown += 1
         else:
             self.drown = 0
+            self.wet = False
         for block in block_hit_list:
             self.rect.x -= self.change_x*block.visc
             self.rect.y -= self.change_y*block.visc
@@ -219,8 +222,6 @@ class MushroomGuy(Living):
 
         self.how_corrupt()
         self.draw_flipped()
-
-        # Update the picture if necessary
 
 
 class Enemy(Living):

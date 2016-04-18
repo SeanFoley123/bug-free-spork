@@ -70,9 +70,6 @@ class Controller(object):
                 if event.key == pygame.K_f:
                     self.player.flipped = not self.player.flipped
                     #print self.player.flipped
-                if self.player.flipped:
-                    # Does this need to happen every step?
-                    self.image = pygame.transform.flip(self.player.image_list[self.player.corruption/5], False, True)
 
                 # Talk
                 if event.key == pygame.K_t:

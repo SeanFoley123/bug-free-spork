@@ -71,22 +71,23 @@ class Room_01(Room):
         # Call the parent constructor
         Room.__init__(self, player)
         
-        self.world_size = (1000, 600)
+        self.world_size = (1000, 800)
         self.world = pygame.Surface(self.world_size)
 
         # Solid objects. Array with width, height, x, y, and class of obstacle
-        room = [[500, 50, 0, 550, Ground],
+        room = [[500, 250, 0, 550, Ground],
                  [180, 30, 200, 400, Ground],
                  [200, 30, 500, 300, Ground],
-                 [100, 400, 900, 200, Ground],
-                 [150, 90, 700, 550, Lava]
+                 [100, 600, 900, 200, Ground],
+                 [150, 290, 700, 550, Lava],
+                 [self.world_size[0], 100, 0, 800, Ground]
                  ]
 
         # Objects that hinder movement (and drown the player if they are not flipped) 
         # Array with width, height, x, y, and class of obstacle
         sludge = [
                  #[300, 100, 400, 350, Water],
-                 [200, 50, 500, 550, Water]]
+                 [200, 250, 500, 550, Water]]
 
         # Objects you can eat. Array with width, height, x, y, and class of obstacle
         consumeable = [[50, 50, 450, 500, Edible],
