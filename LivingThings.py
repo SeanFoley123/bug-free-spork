@@ -145,7 +145,6 @@ class MushroomGuy(Living):
  
     def update(self):
         """ Update the player position. """
-        # TODO: Fix drown. You die super fast when your toe touches the water.
         #print self.flipped
         #print pygame.sprite.spritecollide(self, self.room.sludge, False)
 

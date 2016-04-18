@@ -132,12 +132,16 @@ class View(object):
             else:
                 other.current_room.draw()
                 other.active_sprite_list.draw(other.current_room.world)
-                self.position = (max(min(SCREEN_W_MID-other.player.rect.centerx, 0), SCREEN_WIDTH - other.current_room.world_size[0]),
-                max(min(SCREEN_H_MID-other.player.rect.centery, 0), SCREEN_HEIGHT - other.current_room.world_size[1]))
-                self.screen.blit(other.current_room.world, self.position)
+                # Position tracks the top left corner of the screen relative to the world. It should always be positive and no greater
+                # than the w/h of the world minus the w/h of the screen.
+                # self.position = (min(max(SCREEN_W_MID-other.player.rect.centerx, 0), SCREEN_WIDTH - other.current_room.world_size[0]),
+                # min(max(SCREEN_H_MID-other.player.rect.centery, 0), SCREEN_HEIGHT - other.current_room.world_size[1]))
+                self.position = (min(max(0, other.player.rect.centerx - SCREEN_W_MID), other.current_room.world_size[0]-SCREEN_WIDTH),
+                    min(max(0, other.player.rect.centery - SCREEN_H_MID), other.current_room.world_size[1]-SCREEN_HEIGHT))
+                # Now you blit the background, whose coordinate in the world coordinate system is (0, 0), at the negative of your position.
+                self.screen.blit(other.current_room.world, (-self.position[0], -self.position[1]))
                 for piece in self.hud_components:
                     piece.draw()
-                    print 'hi'
 
             # Go ahead and update the screen with what we've drawn.
             pygame.display.flip()
