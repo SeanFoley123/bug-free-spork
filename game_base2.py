@@ -5,6 +5,7 @@ from Spores import *
 from LivingThings import *
 from Terrain import *
 from Room import *
+from HUD import *
 
 # -- Global constants
  
@@ -14,8 +15,6 @@ SCREEN_HEIGHT = 600
 SCREEN_W_MID = SCREEN_WIDTH/2
 SCREEN_H_MID = SCREEN_HEIGHT/2
 
-# 
-
 # Save files would not be hard, especially with pickling
 # Really important: we need to be consistent on how we define positions. Right now I'm using relative to the upper left hand 
 # corner of the current room. All sprites are defined at the center of their bounding rectangles, which might make rolling
@@ -24,7 +23,8 @@ SCREEN_H_MID = SCREEN_HEIGHT/2
 class Controller(object):
     """ Main Program """
     def __init__(self):
-        
+        # Dictionary of all potential spores
+        self.spores_dict = {pygame.K_q: 0, pygame.K_e: 1}
         # Create the player
         self.player = MushroomGuy()
      
@@ -42,7 +42,7 @@ class Controller(object):
         # Loop until the user clicks the close button.
         self.done = False
 
-    def update(self):
+    def update(self, other):
         # -------- Main Program Loop -----------
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
@@ -55,39 +55,49 @@ class Controller(object):
                     self.player.go_right()
                 if event.key == pygame.K_UP:
                     self.player.jump()
-                if event.key == pygame.K_q:
-                    # Switches the active projectile spore into the decomposition spore
-                    self.current_room.active_spore = self.current_room.spore_list[0]
-                if event.key == pygame.K_e:
+
+                if event.key in self.spores_dict:
                     # Switches the active projectile spore to the ledge-maker
-                    self.current_room.active_spore = self.current_room.spore_list[1]
-                if event.key == pygame.K_c and self.player.climb_okay == True:
-                    self.player.climb()
+                    self.current_room.active_spore = self.current_room.spore_list[self.spores_dict[event.key]]
+
                 if event.key == pygame.K_SPACE:
                     spore = self.current_room.active_spore(self.player)
                     spore.room = self.current_room
                     spore.setup_lists()
                     self.active_sprite_list.add(spore)
+
                 #toggles the flip state
                 if event.key == pygame.K_f:
                     self.player.flipped = not self.player.flipped
                     #print self.player.flipped
                 if self.player.flipped:
+                    # Does this need to happen every step?
                     self.image = pygame.transform.flip(self.player.image_list[self.player.corruption/5], False, True)
+
+                # Talk
+                if event.key == pygame.K_t:
+                    other.hud_components.append(Text(other, self.player, 'hullabaloo'))
+
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT and self.player.change_x < 0:
                     self.player.stop()
                 if event.key == pygame.K_RIGHT and self.player.change_x > 0:
                     self.player.stop()
-     
+        # Checks if c is pressed, and climbs if it is
+        if pygame.key.get_pressed()[pygame.K_c]:
+            self.player.climb()
         # Update the player.
         self.active_sprite_list.update()
  
         # Update items in the level
         self.current_room.update()
- 
+
         # Stop the player from going off the sides
         self.player.rect.centerx = min(max(self.player.rect.centerx, self.player.rect.w/2), self.current_room.world_size[0]-self.player.rect.w/2)
+
+        # Update the HUD
+        for piece in other.hud_components:
+            piece.update()
           
     def change_room(self, direction):
         # Adds direction to current_room_no and initializes our new room
@@ -112,6 +122,9 @@ class View(object):
         # Where relative to the screen the world should be blit
         self.position = (0, 0)
 
+        # Put in all the HUD bits
+        self.hud_components = []
+
     def update(self, other):
             # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
             if other.player not in other.active_sprite_list:
@@ -122,7 +135,9 @@ class View(object):
                 self.position = (max(min(SCREEN_W_MID-other.player.rect.centerx, 0), SCREEN_WIDTH - other.current_room.world_size[0]),
                 max(min(SCREEN_H_MID-other.player.rect.centery, 0), SCREEN_HEIGHT - other.current_room.world_size[1]))
                 self.screen.blit(other.current_room.world, self.position)
-            # ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
+                for piece in self.hud_components:
+                    piece.draw()
+                    print 'hi'
 
             # Go ahead and update the screen with what we've drawn.
             pygame.display.flip()
@@ -143,7 +158,9 @@ if __name__ == "__main__":
     controller = Controller()
 
     while not controller.done:
-        controller.update()
+        # We should not have to feed view into controller and controller into view. Either all those lists should be contained in room,
+        # or they should be contained in some larger model class. I'd opt for the latter.
+        controller.update(view)
         view.update(controller)
         # Limit to 60 frames per second
         clock.tick(60)

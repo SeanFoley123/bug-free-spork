@@ -79,7 +79,7 @@ class Room_01(Room):
                  [180, 30, 200, 400, Ground],
                  [200, 30, 500, 300, Ground],
                  [100, 400, 900, 200, Ground],
-                 #[150, 90, 650, 550, Lava]
+                 [150, 90, 700, 550, Lava]
                  ]
 
         # Objects that hinder movement (and drown the player if they are not flipped) 

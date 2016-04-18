@@ -76,7 +76,6 @@ class MushroomGuy(Living):
             self.image_list[index] = pygame.transform.scale(image, (100, 75))
 
         self.speed = 6
-        self.climb_okay = False
         self.flipped = False
 
         # Corruption starts at zero. Eating mushrooms increases corruption. As corruption increases,
@@ -123,7 +122,8 @@ class MushroomGuy(Living):
         self.rect.y -= 2
  
         # If it is ok to jump, set our speed upwards
-        if len(wall_hit_list) > 0 or self.rect.bottom >= SCREEN_HEIGHT:
+        # That's a really cool way to do this
+        if len(wall_hit_list) > 0:
             self.change_y = -10
 
     #TODO: possible better way to do this: need to discuss
@@ -140,11 +140,12 @@ class MushroomGuy(Living):
             self.image = pygame.transform.flip(self.image_list[self.corruption/5], False, True)
 
     def climb(self):
-        self.change_y = -5
+        if pygame.sprite.spritecollide(self, self.room.can_climb, False):
+            self.change_y = -5
  
     def update(self):
         """ Update the player position. """
-
+        # TODO: Fix drown. You die super fast when your toe touches the water.
         #print self.flipped
         #print pygame.sprite.spritecollide(self, self.room.sludge, False)
 
@@ -159,8 +160,6 @@ class MushroomGuy(Living):
             # Check if it is deadly
             if block.mortality == True:
                 self.wound += 1
-                if self.wound > self.max_wound:
-                    self.kill()
             else:
                 # If we are moving right, set our right side to the left side of
                 # the item we hit
@@ -171,11 +170,6 @@ class MushroomGuy(Living):
                     self.rect.left = block.rect.right
                 self.wound = 0
 
-        # Did this update cause us to hit a deadly object?
-        block_hit_list = pygame.sprite.spritecollide(self, self.room.sludge, False)
-        for block in block_hit_list:
-            self.rect.x -= self.change_x*block.visc
-
         # Move up/down
         self.rect.y += self.change_y
  
@@ -185,18 +179,6 @@ class MushroomGuy(Living):
             # Check if it is deadly
             if block.mortality == True:
                 self.wound += 1
-                if self.wound > self.max_wound:
-                    self.kill()
-
-            #drowns if you are in the water and aren't flipped
-            if pygame.sprite.spritecollide(self, self.room.sludge, False) != [] and (self.flipped == False):
-                self.drown += 1
-                #print self.room.sludge
-            if self.drown > self.max_drown:
-                self.kill()
-
-            #TODO: for some reason, spritecollide only works when you're crossing the left portion of the rect. 
-            #I have no clue why. It doesn't matter with a short max_drown, but it needs to be fixed.
 
             else:
                 # Reset our position based on the top/bottom of the object.
@@ -209,31 +191,35 @@ class MushroomGuy(Living):
                 self.change_y = 0
                 self.wound = 0
 
-
-
-        # Check if we are stuck in something viscous and slow us down if we are
+        # Check if we are stuck in something viscous and slow us down + drown us if we are
         block_hit_list = pygame.sprite.spritecollide(self, self.room.sludge, False)
+        if block_hit_list and not self.flipped:
+            self.drown += 1
+        else:
+            self.drown = 0
         for block in block_hit_list:
+            self.rect.x -= self.change_x*block.visc
             self.rect.y -= self.change_y*block.visc
-
-        enemy_hit_list = pygame.sprite.spritecollide(self, self.room.enemy_list, False)
-        for enemy in enemy_hit_list:
-            if enemy.mortality == True:
-                self.kill()
+        #TODO: for some reason, spritecollide only works when you're crossing the left portion of the rect. 
+        #I have no clue why. It doesn't matter with a short max_drown, but it needs to be fixed.
+        # Moved this one from the drowning check above.
 
         # Check to see if we ate anything
         food_hit_list = pygame.sprite.spritecollide(self, self.room.consumeable, True)
         for food in food_hit_list:
             self.corruption += food.corr_points
 
+        # Check if we're going to die
+        enemy_hit_list = pygame.sprite.spritecollide(self, self.room.enemy_list, False)
+        for enemy in enemy_hit_list:
+            if enemy.mortality == True:
+                self.kill()
+
+        if self.wound > self.max_wound or self.drown > self.max_drown:
+            self.kill()
+
         self.how_corrupt()
         self.draw_flipped()
-
-        #checks if you can climb, sets value
-        if pygame.sprite.spritecollide(self, self.room.can_climb, False) != []:
-            self.climb_okay = True
-        else:
-            self.climb_okay = False
 
         # Update the picture if necessary
 
