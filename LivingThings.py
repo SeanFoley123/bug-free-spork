@@ -49,8 +49,10 @@ class Living(pygame.sprite.Sprite):
 
     def calc_grav(self):
         """ Calculate effect of gravity. """
-        if self.wet and self.flipped:
+        if self.wet and self.flipped and not self.is_floating():
             self.change_y -= .2
+        elif self.is_floating() and self.flipped:
+            self.change_y = 0
         else:
             if self.change_y == 0:
                 self.change_y = 1
@@ -60,6 +62,19 @@ class Living(pygame.sprite.Sprite):
     def update(self):
         """ Makes sure all living things can update """
         pass
+
+    def is_floating(self):
+        """ Check to see if you are floating on top of water """
+        self.rect.y += 1
+        water_beneath = pygame.sprite.spritecollide(self, self.room.sludge, False)
+        self.rect.y -= 1
+        in_water = pygame.sprite.spritecollide(self, self.room.sludge, False)
+
+        # If you hit water, then you can float
+        if len(water_beneath) > 0 and len(in_water) == 0:
+            return True
+        else:
+            return False
 
 class MushroomGuy(Living):
     """ This class represents the bar at the bottom that the player
@@ -89,19 +104,24 @@ class MushroomGuy(Living):
         
         #sets drowning for sludge
         self.drown = 0
-        self.max_drown = 100
+        self.max_drown = 120
 
     # Player-controlled movement:
     def go_left(self):
         """ Called when the user hits the left arrow. """
-        self.change_x = -self.speed
-
+        if ((self.is_floating() or self.wet) and self.flipped) or not self.flipped:
+            self.change_x = -self.speed
+        else:
+            self.change_x = 0
         # Make the shot direction to the left
         self.shot_dir = -1
  
     def go_right(self):
         """ Called when the user hits the right arrow. """
-        self.change_x = self.speed
+        if ((self.is_floating() or self.wet) and self.flipped) or not self.flipped:
+            self.change_x = self.speed
+        else:
+            self.change_x = 0
 
         # Make the shot direction to the right
         self.shot_dir = 1
@@ -149,8 +169,6 @@ class MushroomGuy(Living):
         # Gravity
         self.calc_grav()
         # Move left/right
-        if self.flipped and not self.wet:
-            self.change_x = 0
         self.rect.x += self.change_x
  
         # Did this update cause us to hit a wall?
