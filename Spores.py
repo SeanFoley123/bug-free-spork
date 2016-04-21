@@ -78,14 +78,18 @@ class Decompose_Spore(Spore):
         for thing in self.room.enemy_list:
             self.affected.add(thing)
 
+        for thing in self.room.can_climb:
+            self.affected.add(thing)
+
     def kill_it(self, other, consumeable_type):
         """ Kills the creature and leaves a food in its place """
-        new_food = consumeable_type(other.rect.x, other.rect.y, 50, 50)
-        height_change = other.rect.height - 50
-        new_food.rect.x = other.rect.x
-        new_food.rect.y = other.rect.y + height_change
-        new_food.player = other.room.player
-        other.room.consumeable.add(new_food)
+        if other in self.room.enemy_list:
+            new_food = consumeable_type(other.rect.x, other.rect.y, 50, 50)
+            height_change = other.rect.height - 50
+            new_food.rect.x = other.rect.x
+            new_food.rect.y = other.rect.y + height_change
+            new_food.player = other.room.player
+            other.room.consumeable.add(new_food)
         other.kill()
         self.kill()
 
@@ -126,10 +130,10 @@ class Ledge_Spore(Spore):
     def grow_fungi(self, wall):
         """ Creates a a surface on the wall which the player can climb up. """
         if self.direction == 1:
-            ledge_fungus = Ledge(wall.rect.x - 50, wall.rect.y, wall.rect.height)
+            ledge_fungus = FirstLedge(self.rect.centery, self.room, wall, 'right')
             self.room.can_climb.add(ledge_fungus)
         else:
-            ledge_fungus = Ledge(wall.rect.x + wall.rect.width, wall.rect.y, wall.rect.height)
+            ledge_fungus = FirstLedge(self.rect.centery, self.room, wall, 'left')
             self.room.can_climb.add(ledge_fungus)
 
     def update(self):
@@ -145,19 +149,85 @@ class Ledge_Spore(Spore):
             self.grow_fungi(thing)
             self.kill()
 
-class Ledge(pygame.sprite.Sprite):
-    """ A set of fungi which a player can climb up. """
-    def __init__(self, x, y, height):
+class FirstLedge(pygame.sprite.Sprite):
+    """ A set of fungi which a player can climb up. 
+        hit_y: the y-coordinate of the spore when it hits the wall
+        room: the room so that new ledges can be added to the room
+        wall: the wall object the fungus is growing on
+        wall_direction: 'left' or 'right' to tell which side the fungus is growing on
+        is_first: boolian to see if it is the first ledge to be grown.
+        """
+    def __init__(self, hit_y, room, wall, wall_direction):
         """ Constructor for the wall that the player can run into. """
         # Call the parent's constructor
         pygame.sprite.Sprite.__init__(self)
+
+        self.wall = wall
+        self.room = room
+
+        if self.wall.rect.height <= 50:
+            height = self.wall.rect.height
+        else:
+            height = 50
  
         # Make a blue wall, of the size specified in the parameters
-        self.image = pygame.Surface([50, height])
-        self.image.fill(pygame.Color('darkgoldenrod4'))
+        self.image = pygame.image.load('Shelf-Fungus.jpg')
+        self.image = pygame.transform.scale(self.image, (50, height))
  
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
-        self.rect.y = y
-        self.rect.x = x
+        self.rect.centery = hit_y
+        if wall_direction == 'right':
+            self.rect.x = self.wall.rect.left - 50
+        else:
+            self.rect.x = self.wall.rect.right
+        self.spread_per_update = 1
+        self.spread_up = self.rect.top
+        self.spread_down = self.rect.bottom
+        self.climb_okay = True
+        # Keep track of the most recent fungi grown on the wall, looking at the top of the ones growing
+        #  upward and the bottom of the ones growing down
+        self.grow_above = self.rect.top
+        self.grow_below = self.rect.bottom
+
+    def grow_new_above(self):
+        new_ledge = Ledge(self.spread_up, self.grow_above, self.rect.centerx)
+        self.room.can_climb.add(new_ledge)
+        self.grow_above = new_ledge.rect.top
+
+    def grow_new_below(self):
+        new_ledge = Ledge(self.grow_below, self.spread_down, self.rect.centerx)
+        self.room.can_climb.add(new_ledge)
+        self.grow_below = new_ledge.rect.bottom
+
+    def update(self):
+        """ Makes the fungi grow """
+        if self.spread_up > self.wall.rect.top:
+            self.spread_up -= self.spread_per_update
+            if (self.grow_above - self.spread_up) == 50:
+                self.grow_new_above()
+        elif self.spread_up == self.wall.rect.top and (self.grow_above-self.spread_up) > 25:
+            self.grow_new_above()
+
+        if self.spread_down < self.wall.rect.bottom:
+            self.spread_down += self.spread_per_update
+            if self.spread_down - self.grow_below == 50:
+                self.grow_new_below()
+        elif self.spread_down == self.wall.rect.bottom and (self.spread_down - self.grow_below) > 25:
+            self.grow_new_below()
+
+
+class Ledge(pygame.sprite.Sprite):
+    def __init__(self, top, bottom, centerx):
+        pygame.sprite.Sprite.__init__(self)
+
+        height = abs(top-bottom)
+        print height
+        self.image = pygame.image.load('Shelf-Fungus.jpg')
+        self.image = pygame.transform.scale(self.image, (50, height))
+ 
+        # Make our top-left corner the passed-in location.
+        self.rect = self.image.get_rect()
+        self.rect.centerx = centerx
+        self.rect.y = top
         self.climb_okay = True
