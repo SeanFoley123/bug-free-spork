@@ -83,6 +83,10 @@ class Controller(object):
         # Checks if c is pressed, and climbs if it is
         if pygame.key.get_pressed()[pygame.K_c]:
             self.player.climb()
+        if pygame.key.get_pressed()[pygame.K_LEFT]:
+            self.player.go_left()
+        if pygame.key.get_pressed()[pygame.K_RIGHT]:
+            self.player.go_right()
         # Update the player.
         self.active_sprite_list.update()
  
