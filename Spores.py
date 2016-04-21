@@ -1,4 +1,4 @@
-### All the stuff for the spore classes
+ ### All the stuff for the spore classes
 import math, sys
 import pygame
 from pygame.locals import *
@@ -33,14 +33,11 @@ class Spore(pygame.sprite.Sprite):
         # Set up initial position and direction of shot
         self.rect = self.image.get_rect()
 
-        self.rect.y = player.rect.y + player.rect.height/2
+        self.rect.y = player.rect.centery
         self.change_x = speed[0] * self.direction
         self.change_y = speed[1] * self.direction
 
-        if self.direction == 1:
-            self.rect.x = player.rect.x + player.rect.width
-        else:
-            self.rect.x = player.rect.x
+        self.rect.x = player.rect.centerx
 
         # Set up the room and list of things it can hit
         self.room = None
@@ -127,7 +124,7 @@ class Ledge_Spore(Spore):
             ledge_fungus = Ledge(wall.rect.x - 50, wall.rect.y, wall.rect.height)
             self.room.can_climb.add(ledge_fungus)
         else:
-            ledge_fungus = Ledge(wall.rect.x + wall.rect.width + 50, wall.rect.y, wall.rect.height)
+            ledge_fungus = Ledge(wall.rect.x + wall.rect.width, wall.rect.y, wall.rect.height)
             self.room.can_climb.add(ledge_fungus)
 
     def update(self):
