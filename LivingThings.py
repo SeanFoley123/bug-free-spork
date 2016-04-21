@@ -148,6 +148,7 @@ class MushroomGuy(Living):
         #print pygame.sprite.spritecollide(self, self.room.sludge, False)
         # Gravity
         self.calc_grav()
+        print self.wet
         # Move left/right
         if self.flipped and not self.wet:
             self.change_x = 0
