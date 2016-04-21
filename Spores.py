@@ -43,6 +43,7 @@ class Spore(pygame.sprite.Sprite):
         self.room = None
         self.unaffected = pygame.sprite.Group()
         self.affected = pygame.sprite.Group()
+        self.life = 240
 
     def setup_lists(self):
         """ Sets up the list of what it can affect and what it cannot. """
@@ -52,6 +53,10 @@ class Spore(pygame.sprite.Sprite):
         """ Updates the spore. """
         self.rect.x += self.change_x
         self.rect.y += self.change_y
+
+        self.life -= 1
+        if self.life == 0:
+            self.kill()
 
 class Decompose_Spore(Spore):
     """ A spore that decomposes things it touches. """
