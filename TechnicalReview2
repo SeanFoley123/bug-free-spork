@@ -1,0 +1,5 @@
+Background: We'll show a demo of what we've done so far. It's fairly similar to the last iteration with a number of additional
+features. We'll also talk about how we shifted from building everything from scratch to using Pygame's built in sprite class.
+Questions: We'd like help with a lava-related bug, and we need advice on how to make a system so we can build large levels
+easily. Finally, we'll ask a couple questions about UI elements people would like to see.
+Agenda: We'll start by giving a bit of background and doing a demo, then we'll just ask questions of the class.
