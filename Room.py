@@ -80,14 +80,15 @@ class Room_01(Room):
                  [200, 30, 500, 300, Ground],
                  [100, 600, 900, 200, Ground],
                  [150, 290, 700, 550, Lava],
+                 [200, 250, 500, 550, Lava],
                  [self.world_size[0], 100, 0, 800, Ground]
                  ]
 
         # Objects that hinder movement (and drown the player if they are not flipped) 
         # Array with width, height, x, y, and class of obstacle
-        sludge = [
+        sludge = []
                  #[300, 100, 400, 350, Water],
-                 [200, 250, 500, 550, Water]]
+                 # [200, 250, 500, 550, Water]]
 
         # Objects you can eat. Array with width, height, x, y, and class of obstacle
         consumeable = [[50, 50, 450, 500, Edible],

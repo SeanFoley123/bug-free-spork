@@ -100,7 +100,7 @@ class MushroomGuy(Living):
         self.shot_dir = 1
 
         self.wound = 0
-        self.max_wound = 5
+        self.max_wound = 60
         
         #sets drowning for sludge
         self.drown = 0
@@ -168,7 +168,6 @@ class MushroomGuy(Living):
         #print pygame.sprite.spritecollide(self, self.room.sludge, False)
         # Gravity
         self.calc_grav()
-        print self.wet
         # Move left/right
         self.rect.x += self.change_x
  
@@ -186,7 +185,7 @@ class MushroomGuy(Living):
                 else:
                     # Otherwise if we are moving left, do the opposite.
                     self.rect.left = block.rect.right
-                self.wound = 0
+                
 
         # Move up/down
         self.rect.y += self.change_y
