@@ -164,6 +164,7 @@ class FirstLedge(pygame.sprite.Sprite):
 
         self.wall = wall
         self.room = room
+        self.direction = wall_direction
 
         if self.wall.rect.height <= 50:
             height = self.wall.rect.height
@@ -171,7 +172,10 @@ class FirstLedge(pygame.sprite.Sprite):
             height = 50
  
         # Make a blue wall, of the size specified in the parameters
-        self.image = pygame.image.load('Shelf-Fungus.jpg')
+        if self.direction == 'right':
+            self.image = pygame.image.load('Shelf')
+        else:
+            self.image = pygame.image.load('Shelf')
         self.image = pygame.transform.scale(self.image, (50, height))
  
         # Make our top-left corner the passed-in location.
@@ -218,12 +222,15 @@ class FirstLedge(pygame.sprite.Sprite):
 
 
 class Ledge(pygame.sprite.Sprite):
-    def __init__(self, top, bottom, centerx):
+    def __init__(self, top, bottom, centerx, direction):
         pygame.sprite.Sprite.__init__(self)
 
         height = abs(top-bottom)
-        print height
-        self.image = pygame.image.load('Shelf-Fungus.jpg')
+        self.direction = direction
+        if self.direction == 'right':
+            self.image = pygame.image.load('Shelf')
+        else:
+            self.image = pygame.image.load('Shelf')
         self.image = pygame.transform.scale(self.image, (50, height))
  
         # Make our top-left corner the passed-in location.
