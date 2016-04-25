@@ -80,22 +80,6 @@ class Room_01(Room):
         self.world = pygame.Surface(self.world_size)
 
         # Solid objects. Array with width, height, x, y, and class of obstacle
-<<<<<<< HEAD
-        room = [[500, 250, 0, 550, Ground],
-                 [180, 30, 200, 400, Ground],
-                 [200, 30, 500, 300, Ground],
-                 [100, 600, 900, 200, Ground],
-                 [150, 290, 700, 550, Lava],
-                 [200, 250, 500, 550, Lava],
-                 [self.world_size[0], 100, 0, 800, Ground]
-                 ]
-
-        # Objects that hinder movement (and drown the player if they are not flipped) 
-        # Array with width, height, x, y, and class of obstacle
-        sludge = []
-                 #[300, 100, 400, 350, Water],
-                 # [200, 250, 500, 550, Water]]
-=======
         room = [[200, SCREEN_HEIGHT-STARTING_LEVEL, 0, STARTING_LEVEL, Ground],
                  [300, 300, 200, 300, Ground],
                  [50, SCREEN_HEIGHT-150, 500, 150, Ground],
@@ -126,7 +110,6 @@ class Room_01(Room):
                  [150, 350, 3050, 425, Water],
                  [800, 500, 3200, 275, Water]
                  ]
->>>>>>> 86e2b55c8a34aaf5501744dcb9de586f13774705
 
         # Objects you can eat. Array with width, height, x, y, and class of obstacle
         consumeable = [[50, 50, 150, 50, Edible],
