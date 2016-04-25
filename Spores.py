@@ -173,9 +173,9 @@ class FirstLedge(pygame.sprite.Sprite):
  
         # Make a blue wall, of the size specified in the parameters
         if self.direction == 'right':
-            self.image = pygame.image.load('Shelf')
+            self.image = pygame.image.load('png/ledge_attach_right.png')
         else:
-            self.image = pygame.image.load('Shelf')
+            self.image = pygame.image.load('png/ledge_attach_left.png')
         self.image = pygame.transform.scale(self.image, (50, height))
  
         # Make our top-left corner the passed-in location.
@@ -195,14 +195,19 @@ class FirstLedge(pygame.sprite.Sprite):
         self.grow_below = self.rect.bottom
 
     def grow_new_above(self):
-        new_ledge = Ledge(self.spread_up, self.grow_above, self.rect.centerx)
+        new_ledge = Ledge(self.spread_up, self.grow_above, self.rect.centerx, self.direction)
         self.room.can_climb.add(new_ledge)
         self.grow_above = new_ledge.rect.top
 
     def grow_new_below(self):
-        new_ledge = Ledge(self.grow_below, self.spread_down, self.rect.centerx)
-        self.room.can_climb.add(new_ledge)
-        self.grow_below = new_ledge.rect.bottom
+        new_ledge = Ledge(self.grow_below, self.spread_down, self.rect.centerx, self.direction)
+        blah = True
+        for thing in self.room.wall_list:
+            if new_ledge.rect.colliderect(thing):
+                blah = False
+        if blah:
+            self.room.can_climb.add(new_ledge)
+            self.grow_below = new_ledge.rect.bottom
 
     def update(self):
         """ Makes the fungi grow """
@@ -228,9 +233,9 @@ class Ledge(pygame.sprite.Sprite):
         height = abs(top-bottom)
         self.direction = direction
         if self.direction == 'right':
-            self.image = pygame.image.load('Shelf')
+            self.image = pygame.image.load('png/ledge_attach_right.png')
         else:
-            self.image = pygame.image.load('Shelf')
+            self.image = pygame.image.load('png/ledge_attach_left.png')
         self.image = pygame.transform.scale(self.image, (50, height))
  
         # Make our top-left corner the passed-in location.

@@ -83,10 +83,10 @@ class MushroomGuy(Living):
     # Constructor function
     def __init__(self):
         # Call the parent's constructor
-        Living.__init__(self, 0, 0, 100, 75, 'dog.jpg', 0)
+        Living.__init__(self, 0, 0, 100, 75, 'png/mg_c0.png', 0)
  
         # Set height, width
-        self.image_list = [pygame.image.load('dog.jpg').convert(), pygame.image.load('evil_dog1.jpg').convert()]
+        self.image_list = [pygame.image.load('png/mg_c0.png').convert(), pygame.image.load('png/mg_c1.png').convert(), pygame.image.load('png/mg_c2.png').convert()]
         for index, image in enumerate(self.image_list):
             self.image_list[index] = pygame.transform.scale(image, (100, 75))
 
@@ -143,7 +143,7 @@ class MushroomGuy(Living):
         # If it is ok to jump, set our speed upwards
         # That's a really cool way to do this
         if len(wall_hit_list) > 0 and not self.flipped:
-            self.change_y = -10
+            self.change_y = -5
 
     #TODO: possible better way to do this: need to discuss
     # a better way to do this may be to keep track of the current sprite in a variable  
@@ -253,7 +253,7 @@ class Enemy(Living):
             distance = how far it can walk
             mortality = does it kill you? """
         # Call the parent's constructor
-        Living.__init__(self, x, y, width, height, 'evil_dog1.jpg', speed)
+        Living.__init__(self, x, y, width, height, 'png/enemy.png', speed)
 
         # Set the range of values it can go between
         self.start_x = x
@@ -314,7 +314,7 @@ class Edible(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         # Set the visual
-        self.image = pygame.image.load('evilmushroom.png')
+        self.image = pygame.image.load('png/edible.png')
         self.image = pygame.transform.scale(self.image, (width, height))
         self.corr_points = corr_points
 
