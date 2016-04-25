@@ -164,6 +164,7 @@ class FirstLedge(pygame.sprite.Sprite):
 
         self.wall = wall
         self.room = room
+        self.direction = wall_direction
 
         if self.wall.rect.height <= 50:
             height = self.wall.rect.height
@@ -171,7 +172,10 @@ class FirstLedge(pygame.sprite.Sprite):
             height = 50
  
         # Make a blue wall, of the size specified in the parameters
-        self.image = pygame.image.load('Shelf-Fungus.jpg')
+        if self.direction == 'right':
+            self.image = pygame.image.load('png/ledge_attach_right.png')
+        else:
+            self.image = pygame.image.load('png/ledge_attach_left.png')
         self.image = pygame.transform.scale(self.image, (50, height))
  
         # Make our top-left corner the passed-in location.
@@ -191,14 +195,19 @@ class FirstLedge(pygame.sprite.Sprite):
         self.grow_below = self.rect.bottom
 
     def grow_new_above(self):
-        new_ledge = Ledge(self.spread_up, self.grow_above, self.rect.centerx)
+        new_ledge = Ledge(self.spread_up, self.grow_above, self.rect.centerx, self.direction)
         self.room.can_climb.add(new_ledge)
         self.grow_above = new_ledge.rect.top
 
     def grow_new_below(self):
-        new_ledge = Ledge(self.grow_below, self.spread_down, self.rect.centerx)
-        self.room.can_climb.add(new_ledge)
-        self.grow_below = new_ledge.rect.bottom
+        new_ledge = Ledge(self.grow_below, self.spread_down, self.rect.centerx, self.direction)
+        blah = True
+        for thing in self.room.wall_list:
+            if new_ledge.rect.colliderect(thing):
+                blah = False
+        if blah:
+            self.room.can_climb.add(new_ledge)
+            self.grow_below = new_ledge.rect.bottom
 
     def update(self):
         """ Makes the fungi grow """
@@ -218,12 +227,15 @@ class FirstLedge(pygame.sprite.Sprite):
 
 
 class Ledge(pygame.sprite.Sprite):
-    def __init__(self, top, bottom, centerx):
+    def __init__(self, top, bottom, centerx, direction):
         pygame.sprite.Sprite.__init__(self)
 
         height = abs(top-bottom)
-        print height
-        self.image = pygame.image.load('Shelf-Fungus.jpg')
+        self.direction = direction
+        if self.direction == 'right':
+            self.image = pygame.image.load('png/ledge_attach_right.png')
+        else:
+            self.image = pygame.image.load('png/ledge_attach_left.png')
         self.image = pygame.transform.scale(self.image, (50, height))
  
         # Make our top-left corner the passed-in location.

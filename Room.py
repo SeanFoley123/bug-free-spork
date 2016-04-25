@@ -19,6 +19,11 @@ SCREEN_HEIGHT = 600
 SCREEN_W_MID = SCREEN_WIDTH/2
 SCREEN_H_MID = SCREEN_HEIGHT/2
 
+GROUND_LEVEL = 550
+STARTING_LEVEL = 100
+NEXT_LEVEL = -150
+
+
 class Room(object):
     """ This is a generic super-class used to define a level.
         Create a child class for each level with level-specific
@@ -71,10 +76,11 @@ class Room_01(Room):
         # Call the parent constructor
         Room.__init__(self, player)
         
-        self.world_size = (1000, 800)
+        self.world_size = (SCREEN_WIDTH*5, 800)
         self.world = pygame.Surface(self.world_size)
 
         # Solid objects. Array with width, height, x, y, and class of obstacle
+<<<<<<< HEAD
         room = [[500, 250, 0, 550, Ground],
                  [180, 30, 200, 400, Ground],
                  [200, 30, 500, 300, Ground],
@@ -89,16 +95,53 @@ class Room_01(Room):
         sludge = []
                  #[300, 100, 400, 350, Water],
                  # [200, 250, 500, 550, Water]]
+=======
+        room = [[200, SCREEN_HEIGHT-STARTING_LEVEL, 0, STARTING_LEVEL, Ground],
+                 [300, 300, 200, 300, Ground],
+                 [50, SCREEN_HEIGHT-150, 500, 150, Ground],
+                 [200, 425, 550, 375, Ground],
+                 [100, 500, 750, 300, Ground],
+                 [100, 425, 850, 375, Ground],
+                 [100, 325, 950, 475, Ground],
+                 [650, 50, 1200, 350, Ground],
+                 [400, 200, 1450, 150, Ground],
+                 [350, 125, 1500, 350, Ground],
+                 [275, 50, 1575, 425, Ground],
+                 [150, 325, 1700, 475, Ground],
+                 [200, 100, 2050, 300, Lava],
+                 [200, 400, 2050, 400, Ground],
+                 [400, 500, 2250, 300, Ground],
+                 [200, 600, 2650, 200, Ground],
+                 [150, 325, 3050, 100, Ground],
+                 [400, 100, 3400, 150, Ground],
+                 [200, 100, 3800, 200, Ground],
+                 [self.world_size[0], 25, 0, 775, Ground]]
+
+        # Objects that hinder movement (and drown the player if they are not flipped) 
+        # Array with width, height, x, y, and class of obstacle
+        sludge = [[200, 75, 550, 300, Water],
+                 [700, 225, 1050, 550, Water],
+                 [200, 475, 1850, 300, Water],
+                 [200, 500, 2850, 275, Water],
+                 [150, 350, 3050, 425, Water],
+                 [800, 500, 3200, 275, Water]
+                 ]
+>>>>>>> 86e2b55c8a34aaf5501744dcb9de586f13774705
 
         # Objects you can eat. Array with width, height, x, y, and class of obstacle
-        consumeable = [[50, 50, 450, 500, Edible],
-                        [50, 50, 245, 350, Edible],
-                        [50, 50, 160, 500, Edible],
-                        [50, 50, 300, 500, Edible],
-                        [50, 50, 400, 500, Edible]]
+        consumeable = [[50, 50, 150, 50, Edible],
+                        [50, 50, 300, 250, Edible],
+                        [50, 50, 875, 325, Edible],
+                        [50, 50, 1625, 100, Edible],
+                        [50, 50, 1625, 500, Edible],
+                        [50, 50, 2600, 250, Edible],
+                        [50, 50, 3950, 150, Edible]]
 
         # Enemies on the level
-        enemy_list = [[75, 75, 425, 475, Enemy]]
+        enemy_list = [[75, 75, 400, 225, Enemy],
+                     [75, 75, 1750, 75, Enemy],
+                     [75, 75, 2550, 75, Enemy],
+                     [75, 75, 3700, 75, Enemy]]
  
         # Go through the array above and add obstacles
         for obstacle in room:
