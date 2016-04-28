@@ -31,7 +31,7 @@ class Living(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         # Set default image
-        self.image = pygame.image.load(image_file_name)
+        self.image = pygame.image.load(image_file_name).convert_alpha()
         self.image = pygame.transform.scale(self.image, (width, height))
 
         # Set position
@@ -83,10 +83,10 @@ class MushroomGuy(Living):
     # Constructor function
     def __init__(self):
         # Call the parent's constructor
-        Living.__init__(self, 0, 0, 100, 75, 'png/mg_c0.png', 0)
+        Living.__init__(self, 0, 0, 100, 75, 'png/mg_tc0.png', 0)
  
         # Set height, width
-        self.image_list = [pygame.image.load('png/mg_c0.png').convert(), pygame.image.load('png/mg_c1.png').convert(), pygame.image.load('png/mg_c2.png').convert()]
+        self.image_list = [pygame.image.load('png/mg_tc0.png').convert_alpha(), pygame.image.load('png/mg_tc1.png').convert_alpha(), pygame.image.load('png/mg_tc2.png').convert_alpha()]
         for index, image in enumerate(self.image_list):
             self.image_list[index] = pygame.transform.scale(image, (100, 75))
 
@@ -100,7 +100,7 @@ class MushroomGuy(Living):
         self.shot_dir = 1
 
         self.wound = 0
-        self.max_wound = 5
+        self.max_wound = 9001
         
         #sets drowning for sludge
         self.drown = 0
@@ -176,7 +176,7 @@ class MushroomGuy(Living):
         for block in block_hit_list:
             # Check if it is deadly
             if block.mortality == True:
-                self.wound += 1
+                self.wound += 50
             else:
                 # If we are moving right, set our right side to the left side of
                 # the item we hit
@@ -195,7 +195,7 @@ class MushroomGuy(Living):
         for block in block_hit_list:
             # Check if it's deadly ISUE: You can survive lava if you're at the bottom of a lake
             if block.mortality == True:
-                self.wound += 1
+                self.wound += 50
 
             else:
                 # Reset our position based on the top/bottom of the object.
@@ -233,7 +233,7 @@ class MushroomGuy(Living):
         enemy_hit_list = pygame.sprite.spritecollide(self, self.room.enemy_list, False)
         for enemy in enemy_hit_list:
             if enemy.mortality == True:
-                self.kill()
+                self.wound += 10
 
         if self.wound > self.max_wound or self.drown > self.max_drown:
             self.kill()
@@ -314,7 +314,7 @@ class Edible(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         # Set the visual
-        self.image = pygame.image.load('png/edible.png')
+        self.image = pygame.image.load('png/edible.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (width, height))
         self.corr_points = corr_points
 

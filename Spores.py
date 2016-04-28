@@ -173,9 +173,9 @@ class FirstLedge(pygame.sprite.Sprite):
  
         # Make a blue wall, of the size specified in the parameters
         if self.direction == 'right':
-            self.image = pygame.image.load('png/ledge_attach_right.png')
+            self.image = pygame.image.load('png/ledge_attach_right.png').convert_alpha()
         else:
-            self.image = pygame.image.load('png/ledge_attach_left.png')
+            self.image = pygame.image.load('png/ledge_attach_left.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (50, height))
  
         # Make our top-left corner the passed-in location.
@@ -238,9 +238,9 @@ class Ledge(pygame.sprite.Sprite):
         height = abs(top-bottom)
         self.direction = direction
         if self.direction == 'right':
-            self.image = pygame.image.load('png/ledge_attach_right.png')
+            self.image = pygame.image.load('png/ledge_attach_right.png').convert_alpha()
         else:
-            self.image = pygame.image.load('png/ledge_attach_left.png')
+            self.image = pygame.image.load('png/ledge_attach_left.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (50, height))
  
         # Make our top-left corner the passed-in location.
