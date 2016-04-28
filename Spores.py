@@ -196,8 +196,13 @@ class FirstLedge(pygame.sprite.Sprite):
 
     def grow_new_above(self):
         new_ledge = Ledge(self.spread_up, self.grow_above, self.rect.centerx, self.direction)
-        self.room.can_climb.add(new_ledge)
-        self.grow_above = new_ledge.rect.top
+        blah = True
+        for thing in self.room.wall_list:
+            if new_ledge.rect.colliderect(thing):
+                blah = False
+        if blah:
+            self.room.can_climb.add(new_ledge)
+            self.grow_above = new_ledge.rect.top
 
     def grow_new_below(self):
         new_ledge = Ledge(self.grow_below, self.spread_down, self.rect.centerx, self.direction)
