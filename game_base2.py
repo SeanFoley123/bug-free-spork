@@ -1,4 +1,4 @@
-import math, sys
+import math, sys, pickle
 import pygame
 from pygame.locals import *
 from Spores import *
@@ -111,6 +111,19 @@ class Controller(object):
         self.player.room = self.current_room
         self.player.rect.x = 0
         self.player.rect.y = 0
+
+    def save(self):
+        save_values = {'current_room':self.current_room, 'player':self.player}
+        f = open('save_file', 'w')
+        pickle.dump(save_values, f)
+        f.close()
+
+    def open(self):
+        f = open('save_file')
+        save_values = pickle.load(f)
+        f.close()
+        self.current_room = self.save_values['current_room']
+        self.player = self.save_values['player']
 
 class View(object):
     def __init__(self):
