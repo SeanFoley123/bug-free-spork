@@ -6,6 +6,7 @@ from LivingThings import *
 from Terrain import *
 from Room import *
 from HUD import *
+from Menu import *
 
 # -- Global constants
  
@@ -22,7 +23,7 @@ SCREEN_H_MID = SCREEN_HEIGHT/2
 
 class Controller(object):
     """ Main Program """
-    def __init__(self):
+    def __init__(self, menu):
         # Dictionary of all potential spores
         self.spores_dict = {pygame.K_q: 0, pygame.K_e: 1}
         # Create the player
@@ -42,63 +43,94 @@ class Controller(object):
         # Loop until the user clicks the close button.
         self.done = False
 
+        self.menu = menu
+        self.menu_dict = {'Quit Game':pygame.quit, 'New Game':main, 'Resume':self.resume}
+        self.menu.make_buttons(self.menu_dict.keys())
+
     def update(self, other):
         # -------- Main Program Loop -----------
+
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 self.done = True
- 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    self.player.go_left()
-                if event.key == pygame.K_RIGHT:
-                    self.player.go_right()
-                if event.key == pygame.K_UP:
-                    self.player.jump()
+            if not self.menu.menu_on: 
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                        self.player.go_left()
+                    if event.key == pygame.K_RIGHT:
+                        self.player.go_right()
+                    if event.key == pygame.K_UP:
+                        self.player.jump()
 
-                if event.key in self.spores_dict:
-                    # Switches the active projectile spore to the ledge-maker
-                    self.current_room.active_spore = self.current_room.spore_list[self.spores_dict[event.key]]
+                    if event.key in self.spores_dict:
+                        # Switches the active projectile spore to the ledge-maker
+                        self.current_room.active_spore = self.current_room.spore_list[self.spores_dict[event.key]]
 
-                if event.key == pygame.K_SPACE:
-                    spore = self.current_room.active_spore(self.player)
-                    spore.room = self.current_room
-                    spore.setup_lists()
-                    self.active_sprite_list.add(spore)
+                    if event.key == pygame.K_SPACE:
+                        spore = self.current_room.active_spore(self.player)
+                        spore.room = self.current_room
+                        spore.setup_lists()
+                        self.active_sprite_list.add(spore)
 
-                #toggles the flip state
-                if event.key == pygame.K_f:
-                    self.player.flipped = not self.player.flipped
-                    #print self.player.flipped
+                    #toggles the flip state
+                    if event.key == pygame.K_f:
+                        self.player.flipped = not self.player.flipped
+                        #print self.player.flipped
 
-                # Talk
-                if event.key == pygame.K_t:
-                    other.hud_components.append(Text(other, self.player, 'hullabaloo'))
+                    # Talk
+                    if event.key == pygame.K_t:
+                        other.hud_components.append(Text(other, self.player, 'hullabaloo'))
+                    
+                    
+                    # while self.menu_on:
+                    #     pygame.event.pump()
+                    #     for button in Menu.buttons:
+                    #         if self.Menu.button.make_rect.collidepoint(pygame.mouse.get_pos()):
+                    #             self.Menu.button.hovered = True
+                    #         else:
+                    #             self.Menu.button.hovered = False
+                    #         self.Menu.button.draw()    
 
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT and self.player.change_x < 0:
-                    self.player.stop()
-                if event.key == pygame.K_RIGHT and self.player.change_x > 0:
-                    self.player.stop()
-        # Checks if c is pressed, and climbs if it is
-        if pygame.key.get_pressed()[pygame.K_c]:
-            self.player.climb()
-        if pygame.key.get_pressed()[pygame.K_LEFT]:
-            self.player.go_left()
-        if pygame.key.get_pressed()[pygame.K_RIGHT]:
-            self.player.go_right()
-        # Update the player.
-        self.active_sprite_list.update()
- 
-        # Update items in the level
-        self.current_room.update()
 
-        # Stop the player from going off the sides
-        self.player.rect.centerx = min(max(self.player.rect.centerx, self.player.rect.w/2), self.current_room.world_size[0]-self.player.rect.w/2)
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_LEFT and self.player.change_x < 0:
+                        self.player.stop()
+                    if event.key == pygame.K_RIGHT and self.player.change_x > 0:
+                        self.player.stop()
+            else:
+                for button in self.menu.buttons:
+                    if button.rect.collidepoint(pygame.mouse.get_pos()):
+                        button.hovered = True
+                        if pygame.mouse.get_pressed()[0]:
+                            x = button.pressed()
+                            self.menu_dict[x]()
+                    else:
+                        button.hovered = False
 
-        # Update the HUD
-        for piece in other.hud_components:
-            piece.update()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                    self.menu.menu_on = not self.menu.menu_on
+
+        if not self.menu.menu_on:
+            # Checks if c is pressed, and climbs if it is
+            if pygame.key.get_pressed()[pygame.K_c]:
+                self.player.climb()
+            if pygame.key.get_pressed()[pygame.K_LEFT]:
+                self.player.go_left()
+            if pygame.key.get_pressed()[pygame.K_RIGHT]:
+                self.player.go_right()
+            # Update the player.
+            self.active_sprite_list.update()
+     
+            # Update items in the level
+            self.current_room.update()
+
+            # Stop the player from going off the sides
+            self.player.rect.centerx = min(max(self.player.rect.centerx, self.player.rect.w/2), self.current_room.world_size[0]-self.player.rect.w/2)
+
+            # Update the HUD
+            for piece in other.hud_components:
+                piece.update()
           
     def change_room(self, direction):
         # Adds direction to current_room_no and initializes our new room
@@ -125,19 +157,24 @@ class Controller(object):
         self.current_room = self.save_values['current_room']
         self.player = self.save_values['player']
 
+    def resume(self):
+        self.menu.menu_on = False
+
 class View(object):
-    def __init__(self):
+    def __init__(self, menu):
         # Set the height and width of the screen
         size = [SCREEN_WIDTH, SCREEN_HEIGHT]
         self.screen = pygame.display.set_mode(size)
      
-        pygame.display.set_caption("Jump Jump Jump")
+        pygame.display.set_caption("Symbiosis")
 
         # Where relative to the screen the world should be blit
         self.position = (0, 0)
 
         # Put in all the HUD bits
         self.hud_components = []
+
+        self.menu = menu
 
     def update(self, other):
             # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
@@ -156,6 +193,7 @@ class View(object):
                 self.screen.blit(other.current_room.world, (-self.position[0], -self.position[1]))
                 for piece in self.hud_components:
                     piece.draw()
+                self.menu.draw(self.screen)
 
             # Go ahead and update the screen with what we've drawn.
             pygame.display.flip()
@@ -166,14 +204,16 @@ class View(object):
         game_over_pic = pygame.transform.scale(pygame.image.load('game_over_mushroom.jpg').convert(), [350, 350])
         self.screen.blit(game_over_pic, (SCREEN_W_MID-175, SCREEN_H_MID-175))
 
-if __name__ == "__main__":
+def main():
     pygame.init()
         
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
 
-    view = View()
-    controller = Controller()
+    menu = Menu(True)
+
+    view = View(menu)
+    controller = Controller(menu)
 
     while not controller.done:
         # We should not have to feed view into controller and controller into view. Either all those lists should be contained in room,
@@ -188,3 +228,4 @@ if __name__ == "__main__":
     pygame.quit()
 
     #view.play()
+main()
