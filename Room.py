@@ -23,7 +23,6 @@ GROUND_LEVEL = 550
 STARTING_LEVEL = 100
 NEXT_LEVEL = -150
 
-
 class Room(object):
     """ This is a generic super-class used to define a level.
         Create a child class for each level with level-specific
