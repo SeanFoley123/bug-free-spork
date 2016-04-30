@@ -83,7 +83,7 @@ class Decompose_Spore(Spore):
 
     def kill_it(self, other, consumeable_type):
         """ Kills the creature and leaves a food in its place """
-        if other in self.room.enemy_list:
+        if other not in self.room.can_climb:
             new_food = consumeable_type(other.rect.x, other.rect.y, 50, 50)
             height_change = other.rect.height - 50
             new_food.rect.x = other.rect.x

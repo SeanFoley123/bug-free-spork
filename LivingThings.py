@@ -88,7 +88,7 @@ class MushroomGuy(Living):
         # Set height, width
         self.image_list = [pygame.image.load('png/mg_tc0.png').convert_alpha(), pygame.image.load('png/mg_tc1.png').convert_alpha(), pygame.image.load('png/mg_tc2.png').convert_alpha()]
         for index, image in enumerate(self.image_list):
-            self.image_list[index] = pygame.transform.scale(image, (100, 75))
+            self.image_list[index] = pygame.transform.scale(image, (75, 75))
 
         self.speed = 6
 
@@ -305,6 +305,31 @@ class Enemy(Living):
             # Stop its vertical movement
             self.change_y = 0
 
+class Friend(Enemy):
+    """ A class of living creatures that will not kill you. Currently, it does not move."""
+    def __init__(self, x, y, width, height, image_file_name):
+        """ x = upper left corner x component
+            y = upper left corner y component
+            width = x dimension
+            height = y dimension 
+            image_file_name = the image wanted for the friend.
+            The friend does not move, so speed and distance are 0 and mortality is False"""
+        Enemy.__init__(self, x, y, width, height, 0, 0, False)
+        self.image = pygame.image.load(image_file_name).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (width, height))
+
+class Adult_Duck(Friend):
+    def __init__(self, x, y, width = 100, height = 100):
+        self.width = width
+        self.height = height
+        Friend.__init__(self, x, y, self.width, self.height, "png/adult_duck.png")
+
+class Child_Duck(Friend):
+    def __init__(self, x, y, width = 75, height = 75):
+        self.width = width
+        self.height = height
+        Friend.__init__(self, x, y, self.width, self.height, "png/child_duck_friend.png")
+
 class Edible(pygame.sprite.Sprite):
     """ This is the base class; any new foods should be modified from this one.
         Maybe make this an inherited class from Obstacle? """
@@ -322,3 +347,8 @@ class Edible(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
+
+class Friend_Edible(Edible):
+    """ This is an edible food that only comes from when you have killed a friendly creature. """
+    def __init__(self, x, y, width, height):
+        Edible.__init__(self, x, y, width, height, 5)
