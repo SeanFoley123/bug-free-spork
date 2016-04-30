@@ -125,8 +125,8 @@ class Room_01(Room):
                      [75, 75, 1750, 75, Enemy],
                      [75, 75, 2550, 75, Enemy],
                      [75, 75, 3700, 75, Enemy],
-                     [100, 100, 3700, 100, Adult_Duck],
-                     [75, 75, 2550, 75, Child_Duck]]
+                     [100, 100, 3700, 100, AdultDuck],
+                     [75, 75, 2550, 75, ChildDuck]]
  
         # Go through the array above and add obstacles
         for obstacle in room:
