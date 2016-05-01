@@ -11,7 +11,7 @@ from Terrain import *
 # Colors - check out pygame.Colors. Probably does exactly what you want
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-BLUE = (50, 50, 255)
+BLUE = pygame.Color('cadetblue1')
  
 # Screen dimensions
 SCREEN_WIDTH = 800
@@ -86,7 +86,7 @@ class Room_01(Room):
                  [100, 500, 750, 300, Ground],
                  [100, 425, 850, 375, Ground],
                  [100, 325, 950, 475, Ground],
-                 [650, 50, 1200, 350, Ground],
+                 [650, 100, 1200, 350, Ground],
                  [400, 200, 1450, 150, Ground],
                  [350, 125, 1500, 350, Ground],
                  [275, 50, 1575, 425, Ground],

@@ -18,3 +18,9 @@ To play, run the file game_base2.py. This imports the modules Spores, LivingThin
 
 ## Keybindings
 Use the arrow keys to move. Spacebar throws spores. Up arrow key allows you to jump. Don't hit the enemy, try to survive!
+
+## ...Bugs
+If you are touching the wall while touching lava, you don't die.
+
+## Credit
+http://programarcadegames.com/python_examples/show_file.php?file=platform_jumper.py

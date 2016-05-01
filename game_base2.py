@@ -44,12 +44,11 @@ class Controller(object):
         self.done = False
 
         self.menu = menu
-        self.menu_dict = {'Quit Game':pygame.quit, 'New Game':main, 'Resume':self.resume}
+        self.menu_dict = {'Quit Game':self.quit_game, 'New Game':main, 'Resume':self.resume}
         self.menu.make_buttons(self.menu_dict.keys())
 
     def update(self, other):
         # -------- Main Program Loop -----------
-
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
@@ -81,17 +80,6 @@ class Controller(object):
                     # Talk
                     if event.key == pygame.K_t:
                         other.hud_components.append(Text(other, self.player, 'hullabaloo'))
-                    
-                    
-                    # while self.menu_on:
-                    #     pygame.event.pump()
-                    #     for button in Menu.buttons:
-                    #         if self.Menu.button.make_rect.collidepoint(pygame.mouse.get_pos()):
-                    #             self.Menu.button.hovered = True
-                    #         else:
-                    #             self.Menu.button.hovered = False
-                    #         self.Menu.button.draw()    
-
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT and self.player.change_x < 0:
@@ -99,6 +87,7 @@ class Controller(object):
                     if event.key == pygame.K_RIGHT and self.player.change_x > 0:
                         self.player.stop()
             else:
+                # self.menu_is_on()
                 for button in self.menu.buttons:
                     if button.rect.collidepoint(pygame.mouse.get_pos()):
                         button.hovered = True
@@ -131,7 +120,18 @@ class Controller(object):
             # Update the HUD
             for piece in other.hud_components:
                 piece.update()
-          
+    
+    def menu_is_on(self):
+        for event in pygame.event.get():
+            for button in self.menu.buttons:
+                if button.rect.collidepoint(pygame.mouse.get_pos()):
+                    button.hovered = True
+                    if pygame.mouse.get_pressed()[0]:
+                        x = button.pressed()
+                        self.menu_dict[x]()
+                else:
+                    button.hovered = False
+
     def change_room(self, direction):
         # Adds direction to current_room_no and initializes our new room
         self.current_room_no += direction
@@ -158,7 +158,12 @@ class Controller(object):
         self.player = self.save_values['player']
 
     def resume(self):
+        if self.player not in self.active_sprite_list:
+            main()
         self.menu.menu_on = False
+
+    def quit_game(self):
+        self.done = True
 
 class View(object):
     def __init__(self, menu):
@@ -175,11 +180,17 @@ class View(object):
         self.hud_components = []
 
         self.menu = menu
+        self.end_timer = 0
+        self.end_timer_max = 120
 
     def update(self, other):
             # ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
             if other.player not in other.active_sprite_list:
                 self.draw_end()
+                self.end_timer += 1
+                if self.end_timer >= self.end_timer_max:
+                    other.menu.menu_on = True
+                    other.menu_is_on()
             else:
                 other.current_room.draw()
                 other.active_sprite_list.draw(other.current_room.world)
@@ -193,7 +204,7 @@ class View(object):
                 self.screen.blit(other.current_room.world, (-self.position[0], -self.position[1]))
                 for piece in self.hud_components:
                     piece.draw()
-                self.menu.draw(self.screen)
+            self.menu.draw(self.screen)
 
             # Go ahead and update the screen with what we've drawn.
             pygame.display.flip()

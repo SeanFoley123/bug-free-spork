@@ -101,7 +101,7 @@ class MushroomGuy(Living):
         self.shot_dir = 1
 
         self.wound = 0
-        self.max_wound = 9001
+        self.max_wound = 1000
         
         #sets drowning for sludge
         self.drown = 0

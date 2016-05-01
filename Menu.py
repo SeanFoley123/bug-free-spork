@@ -70,6 +70,7 @@ class Menu(object):
 
     def draw(self, screen):
         if self.menu_on:
+            screen.fill(BLACK) 
             for button in self.buttons:
                 button.draw(screen)
 

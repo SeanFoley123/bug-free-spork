@@ -149,7 +149,8 @@ class Ledge_Spore(Spore):
 
         unaffected_hit_list = pygame.sprite.spritecollide(self, self.unaffected, False)
         for thing in unaffected_hit_list:
-            self.kill()
+            if not isinstance(thing, Enemy):
+                self.kill()
 
         affected_hit_list = pygame.sprite.spritecollide(self, self.affected, False)
         for thing in affected_hit_list:
