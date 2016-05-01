@@ -3,6 +3,7 @@
 import math, sys
 import pygame
 from pygame.locals import *
+from numpy import sign
 
 # -- Global constants
  
@@ -159,8 +160,11 @@ class MushroomGuy(Living):
 
     def draw_flipped(self):
         """Flips the player's sprite based on the value assigned to self.flipped (controlled by keypress)"""
+        list_index = self.corruption/5
+        if list_index > len(self.image_list) - 1:
+            list_index = len(self.image_list) - 1
         if self.flipped:
-            self.image = pygame.transform.flip(self.image_list[self.corruption/5], False, True)
+            self.image = pygame.transform.flip(self.image_list[list_index], False, True)
 
     def climb(self):
         if pygame.sprite.spritecollide(self, self.room.can_climb, False):
@@ -189,7 +193,6 @@ class MushroomGuy(Living):
                 else:
                     # Otherwise if we are moving left, do the opposite.
                     self.rect.left = block.rect.right
-                self.wound = 0
 
         # Move up/down
         self.rect.y += self.change_y
@@ -210,7 +213,6 @@ class MushroomGuy(Living):
 
                     # Stop our vertical movement
                 self.change_y = 0
-                self.wound = 0
 
         # Check if we are stuck in something viscous and slow us down + drown us if we are
         block_hit_list = pygame.sprite.spritecollide(self, self.room.sludge, False)
@@ -232,6 +234,7 @@ class MushroomGuy(Living):
         food_hit_list = pygame.sprite.spritecollide(self, self.room.consumeable, True)
         for food in food_hit_list:
             self.corruption += food.corr_points
+            self.wound = max(0, self.wound - food.health_points)
 
         # Check if we're going to die
         enemy_hit_list = pygame.sprite.spritecollide(self, self.room.enemy_list, False)
@@ -268,6 +271,9 @@ class Enemy(Living):
         self.change_y = 0
 
         self.mortality = mortality
+        self.talked = False
+        self.text = 'MONSTER: Rawr!'
+        self.talk_length = 60
 
     def update(self):
         """ Update the enemy position. """
@@ -275,6 +281,14 @@ class Enemy(Living):
         self.calc_grav()
         # Move left/right
         self.rect.x += self.change_x
+
+        if (abs(self.room.player.rect.x - self.rect.x) <= 200 and
+            self.room.player.rect.bottom == self.rect.bottom and
+            sign(self.change_x) == sign(self.room.player.rect.x - self.rect.x)):
+            if not self.talked:
+                self.talked = True
+        else:
+            self.talked = False
  
         # Did this update cause it to hit a wall?
         block_hit_list = pygame.sprite.spritecollide(self, self.room.wall_list, False)
@@ -321,23 +335,26 @@ class Friend(Enemy):
         Enemy.__init__(self, x, y, width, height, 0, 0, False)
         self.image = pygame.image.load(image_file_name).convert_alpha()
         self.image = pygame.transform.scale(self.image, (width, height))
+        self.talk_length = 240
 
 class AdultDuck(Friend):
     def __init__(self, x, y, width = 100, height = 100):
         self.width = width
         self.height = height
         Friend.__init__(self, x, y, self.width, self.height, "png/adult_duck.png")
+        self.text = "PARENT DUCK: Ugh! What are you?"
 
 class ChildDuck(Friend):
     def __init__(self, x, y, width = 75, height = 75):
         self.width = width
         self.height = height
         Friend.__init__(self, x, y, self.width, self.height, "png/child_duck_friend.png")
+        self.text = "BABY DUCK: Hi! Are you here to play?"
 
 class Edible(pygame.sprite.Sprite):
     """ This is the base class; any new foods should be modified from this one.
         Maybe make this an inherited class from Obstacle? """
-    def __init__(self, x, y, width, height, corr_points = 1):
+    def __init__(self, x, y, width, height, corr_points = 1, health_points = 50):
         """ Constructor for the wall that the player can run into. """
         # Call the parent's constructor
         pygame.sprite.Sprite.__init__(self)
@@ -346,6 +363,7 @@ class Edible(pygame.sprite.Sprite):
         self.image = pygame.image.load('png/edible.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (width, height))
         self.corr_points = corr_points
+        self.health_points = health_points
 
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
@@ -355,4 +373,4 @@ class Edible(pygame.sprite.Sprite):
 class FriendEdible(Edible):
     """ This is an edible food that only comes from when you have killed a friendly creature. """
     def __init__(self, x, y, width, height):
-        Edible.__init__(self, x, y, width, height, 5)
+        Edible.__init__(self, x, y, width, height, 5, 150)

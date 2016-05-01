@@ -43,9 +43,14 @@ class Controller(object):
         # Loop until the user clicks the close button.
         self.done = False
 
+        # Initialize Menu
         self.menu = menu
         self.menu_dict = {'Quit Game':self.quit_game, 'New Game':main, 'Resume':self.resume}
         self.menu.make_buttons(self.menu_dict.keys())
+
+        # Put in all the HUD components
+        self.hud_components = pygame.sprite.Group()
+        self.hud_components.add(HealthBar(self.player))
 
     def update(self, other):
         # -------- Main Program Loop -----------
@@ -79,7 +84,7 @@ class Controller(object):
 
                     # Talk
                     if event.key == pygame.K_t:
-                        other.hud_components.append(Text(other, self.player, 'hullabaloo'))
+                        self.hud_components.add(Text(other, self.player, 'hullabaloo'))
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT and self.player.change_x < 0:
@@ -110,7 +115,9 @@ class Controller(object):
                 self.player.go_right()
             # Update the player.
             self.active_sprite_list.update()
-     
+            talkers = [creature for creature in self.current_room.enemy_list if creature.talked]
+            for talker in talkers:
+                self.hud_components.add(Text(other, self.player, talker.text, talker.talk_length))
             # Update items in the level
             self.current_room.update()
 
@@ -118,7 +125,7 @@ class Controller(object):
             self.player.rect.centerx = min(max(self.player.rect.centerx, self.player.rect.w/2), self.current_room.world_size[0]-self.player.rect.w/2)
 
             # Update the HUD
-            for piece in other.hud_components:
+            for piece in self.hud_components:
                 piece.update()
     
     def menu_is_on(self):
@@ -176,9 +183,6 @@ class View(object):
         # Where relative to the screen the world should be blit
         self.position = (0, 0)
 
-        # Put in all the HUD bits
-        self.hud_components = []
-
         self.menu = menu
         self.end_timer = 0
         self.end_timer_max = 120
@@ -202,8 +206,7 @@ class View(object):
                     min(max(0, other.player.rect.centery - SCREEN_H_MID), other.current_room.world_size[1]-SCREEN_HEIGHT))
                 # Now you blit the background, whose coordinate in the world coordinate system is (0, 0), at the negative of your position.
                 self.screen.blit(other.current_room.world, (-self.position[0], -self.position[1]))
-                for piece in self.hud_components:
-                    piece.draw()
+                other.hud_components.draw(self.screen)
             self.menu.draw(self.screen)
 
             # Go ahead and update the screen with what we've drawn.
