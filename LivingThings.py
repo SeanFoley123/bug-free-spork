@@ -48,12 +48,14 @@ class Living(pygame.sprite.Sprite):
         self.flipped = False
         self.wet = False
 
+        self.talked = False
+
     def calc_grav(self):
         """ Calculate effect of gravity. """
         if self.wet and self.flipped and not self.is_floating():
             self.change_y -= .2
         elif self.is_floating() and self.flipped:
-            self.change_y = 0
+            pass
         else:
             if self.change_y == 0:
                 self.change_y = 1
@@ -114,6 +116,11 @@ class MushroomGuy(Living):
         self.drown = 0
         self.max_drown = 120
 
+        #Fire!
+        self.on_fire = False
+
+        self.talk_length = 240
+
     # Player-controlled movement:
     def go_left(self):
         """ Called when the user hits the left arrow. """
@@ -163,7 +170,7 @@ class MushroomGuy(Living):
         if list_index > len(self.image_list) - 1:
             list_index = len(self.image_list) - 1
         self.image = self.image_list[list_index]
-        self.current_chat = self.chat_list[list_index]
+        self.text = self.chat_list[list_index]
 
     def draw_flipped(self):
         """Flips the player's sprite based on the value assigned to self.flipped (controlled by keypress)"""
@@ -185,7 +192,10 @@ class MushroomGuy(Living):
         self.calc_grav()
         # Move left/right
         self.rect.x += self.change_x
- 
+        
+        # You only get to talk once.
+        self.talked = False
+
         # Did this update cause us to hit a wall?
         block_hit_list = pygame.sprite.spritecollide(self, self.room.wall_list, False)
         for block in block_hit_list:
@@ -233,6 +243,7 @@ class MushroomGuy(Living):
         for block in block_hit_list:
             self.rect.x -= self.change_x*block.visc
             self.rect.y -= self.change_y*block.visc
+
         #TODO: for some reason, spritecollide only works when you're crossing the left portion of the rect. 
         #I have no clue why. It doesn't matter with a short max_drown, but it needs to be fixed.
         # Moved this one from the drowning check above.
@@ -255,6 +266,13 @@ class MushroomGuy(Living):
         self.how_corrupt()
         self.draw_flipped()
 
+        # Turn off death for easier testing
+        death = True
+        if not death:
+            self.wound = 0
+
+    def __str__(self):
+        return 'Player'
 
 class Enemy(Living):
     """ This is the base class for anything that is alive and should move that isn't the player. """
@@ -279,10 +297,10 @@ class Enemy(Living):
         self.change_y = 0
 
         self.mortality = mortality
-        self.talked = False
         self.text = 'MONSTER: Rawr!'
         self.talk_length = 60
-        print self.speed
+
+        self.near_player = False
 
     def update(self):
         """ Update the enemy position. """
@@ -290,16 +308,20 @@ class Enemy(Living):
         self.calc_grav()
         # Move left/right
         self.rect.x += self.change_x
-
+        # If you talked last time, you don't talk this time
+        self.talked = False
+        #Check if you're on the same level as the player and close to the player
         if (abs(self.room.player.rect.x - self.rect.x) <= 200 and
-            self.room.player.rect.bottom == self.rect.bottom and
-            sign(self.change_x) == sign(self.room.player.rect.x - self.rect.x)):
-            self.change_x = sign(self.change_x)*self.speed*1.5
-            if not self.talked:
+            self.room.player.rect.bottom == self.rect.bottom):
+            # Move towards him ISSUE: Enemy occasionally teleport far away and disappears
+            self.change_x = sign(self.room.player.rect.x - self.rect.x)*self.speed
+            if not self.near_player:       # If I wasn't near him last step
                 self.talked = True
+            self.near_player = True
         else:
-            self.change_x = sign(self.change_x)*self.speed
-            self.talked = False
+            #Reset your speed if you choose to change it
+            # self.change_x = sign(self.change_x)*self.speed
+            self.near_player = False
  
         # Did this update cause it to hit a wall?
         block_hit_list = pygame.sprite.spritecollide(self, self.room.wall_list, False)
@@ -334,6 +356,9 @@ class Enemy(Living):
             # Stop its vertical movement
             self.change_y = 0
 
+    def __str__(self):
+        return 'Enemy'
+
 class Friend(Enemy):
     """ A class of living creatures that will not kill you. Currently, it does not move."""
     def __init__(self, x, y, width, height, image_file_name):
@@ -350,11 +375,16 @@ class Friend(Enemy):
 
     def update(self):
         Enemy.update(self)
+        self.talked = False
         if abs(self.room.player.rect.x - self.rect.x) <= 100:
-            if not self.talked:
+            if not self.near_player:
                 self.talked = True
+            self.near_player = True
         else:
-            self.talked = False
+            self.near_player = False
+
+    def __str__(self):
+        return 'Friend'
 
 class AdultDuck(Friend):
     def __init__(self, x, y, width = 100, height = 100):

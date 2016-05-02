@@ -87,7 +87,7 @@ class Controller(object):
 
                     # Talk
                     if event.key == pygame.K_t:
-                        self.hud_components.add(Text(other, self.player, self.player.current_chat, 240))
+                        self.player.talked = True
 
                     # Eat stuff
                     if event.key == pygame.K_d:
@@ -119,15 +119,22 @@ class Controller(object):
             # Checks if c is pressed, and climbs if it is
             if pygame.key.get_pressed()[pygame.K_c]:
                 self.player.climb()
-            if pygame.key.get_pressed()[pygame.K_LEFT]:
+            if pygame.key.get_pressed()[pygame.K_LEFT]: 
                 self.player.go_left()
             if pygame.key.get_pressed()[pygame.K_RIGHT]:
                 self.player.go_right()
+                        
+            talkers = [creature for creature in self.current_room.enemy_list if creature.talked] + [player for player in [self.player] if player.talked]
+            for talker in talkers:
+                self.hud_components.add(Text(other, self.player, talker.text, talker.talk_length, talker.__str__()))
+            if talkers:
+                # This bit removes all but the most important message. In the event of a tie, it removes the earlier message.
+                messages = [message for message in self.hud_components if isinstance(message, Text)]
+                most_important = max(messages)
+                self.hud_components.remove([message for message in messages if message.words != most_important.words])
+            
             # Update the player.
             self.active_sprite_list.update()
-            talkers = [creature for creature in self.current_room.enemy_list if creature.talked]
-            for talker in talkers:
-                self.hud_components.add(Text(other, self.player, talker.text, talker.talk_length))
             # Update items in the level
             self.current_room.update()
 

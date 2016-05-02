@@ -18,18 +18,14 @@ class IntroMovie(object):
 							]
 
 		# Set the starting image
-		self.image_index = 0
-		self.image = self.image_list[self.image_index]
-		self.rect = self.image.get_rect()
-		self.rect.centery = 300
-		self.rect.centerx = 400
+		self.image_index = -1
+		self.change_image()
 
 	def change_image(self):
 		self.image_index += 1
 		self.image = self.image_list[self.image_index]
 		self.rect = self.image.get_rect()
-		self.rect.centery = 300
-		self.rect.centerx = 400
+		self.rect.center = self.screen.get_rect().center
 
 	def update(self):
 		# Check for any updates, such as they are trying to skip through it all

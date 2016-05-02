@@ -12,12 +12,14 @@ class HUD_Object(pygame.sprite.Sprite):
 
 class Text(HUD_Object):
 	# This guy should always draw above the player.
-	def __init__(self, view, player, words, duration):
+	def __init__(self, view, player, words, duration, speaker):
 		HUD_Object.__init__(self, view, player)
 		drawing_font = pygame.font.Font(pygame.font.get_default_font(), 18)
 		self.image = drawing_font.render(words, True, pygame.Color('black'), pygame.Color('azure3'))
 		self.rect = self.image.get_rect()
 		self.timer = duration
+		self.speaker = speaker
+		self.words = words
 		#self.size = drawing_font.size(words)
 	
 	def update(self):
@@ -25,6 +27,20 @@ class Text(HUD_Object):
 		self.timer -= 1
 		if self.timer <= 1:
 			self.kill()
+
+	def __cmp__(self, other):
+		# Ascending order of importance: Monster, Mushroom Hat, Friendly
+		if self.speaker == other.speaker:
+			return -1    #This will always make it return the last entry in a list.
+		elif self.speaker == 'Enemy' and (other.speaker == 'Player' or other.speaker == 'Friend'):
+			return -1
+		elif self.speaker == 'Player' and other.speaker == 'Friend':
+			return -1
+		else:
+			return 1
+
+	def __str__(self):
+		return self.words
 
 class HealthBar(pygame.sprite.Sprite):
 	# This should be drawn on the left side of the screen, with red marking how much health is left
