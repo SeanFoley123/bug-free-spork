@@ -3,6 +3,7 @@
 import math, sys
 import pygame
 from pygame.locals import *
+from numpy import sign
 
 # -- Global constants
  
@@ -82,25 +83,32 @@ class MushroomGuy(Living):
  
     # Constructor function
     def __init__(self):
+        self.size = (75, 75)
         # Call the parent's constructor
-        Living.__init__(self, 0, 0, 100, 75, 'png/mg_tc0.png', 0)
+        Living.__init__(self, 0, 0, self.size[0], self.size[1], 'png/mg_tc0.png', 0)
  
         # Set height, width
         self.image_list = [pygame.image.load('png/mg_tc0.png').convert_alpha(), pygame.image.load('png/mg_tc1.png').convert_alpha(), pygame.image.load('png/mg_tc2.png').convert_alpha()]
         for index, image in enumerate(self.image_list):
-            self.image_list[index] = pygame.transform.scale(image, (75, 75))
+            self.image_list[index] = pygame.transform.scale(image, self.size)
+
+        # Make list of things your mushroom will say to you
+        self.chat_list = ["SYMBIOTE: We won't get far like this. We must get stronger. C'mon, don't you want to find your family?",
+                            "SYMBIOTE: Look at how strong we are! We don't need anyone else, aren't I enough for you?",
+                            "SYMBIOTE: I... wow. I didn't realize you'd go... that far."]
 
         self.speed = 6
 
         # Corruption starts at zero. Eating mushrooms increases corruption. As corruption increases,
-        #  player avatar image changes (every 5 points)
+        #  player avatar image changes (every corrupt_change points)
         self.corruption = 0
+        self.corrupt_change = 7
 
         # Set shot direction: 1 = right, -1 = left
         self.shot_dir = 1
 
         self.wound = 0
-        self.max_wound = 9001
+        self.max_wound = 1000
         
         #sets drowning for sludge
         self.drown = 0
@@ -151,12 +159,19 @@ class MushroomGuy(Living):
 
     def how_corrupt(self):
         """ Changes the image based on the corruption level of the player. """
-        self.image = pygame.transform.scale(self.image_list[self.corruption/5], (100, 75))
+        list_index = self.corruption/self.corrupt_change
+        if list_index > len(self.image_list) - 1:
+            list_index = len(self.image_list) - 1
+        self.image = self.image_list[list_index]
+        self.current_chat = self.chat_list[list_index]
 
     def draw_flipped(self):
         """Flips the player's sprite based on the value assigned to self.flipped (controlled by keypress)"""
+        list_index = self.corruption/self.corrupt_change
+        if list_index > len(self.image_list) - 1:
+            list_index = len(self.image_list) - 1
         if self.flipped:
-            self.image = pygame.transform.flip(self.image_list[self.corruption/5], False, True)
+            self.image = pygame.transform.flip(self.image_list[list_index], False, True)
 
     def climb(self):
         if pygame.sprite.spritecollide(self, self.room.can_climb, False):
@@ -185,7 +200,6 @@ class MushroomGuy(Living):
                 else:
                     # Otherwise if we are moving left, do the opposite.
                     self.rect.left = block.rect.right
-                self.wound = 0
 
         # Move up/down
         self.rect.y += self.change_y
@@ -206,7 +220,6 @@ class MushroomGuy(Living):
 
                     # Stop our vertical movement
                 self.change_y = 0
-                self.wound = 0
 
         # Check if we are stuck in something viscous and slow us down + drown us if we are
         block_hit_list = pygame.sprite.spritecollide(self, self.room.sludge, False)
@@ -225,9 +238,10 @@ class MushroomGuy(Living):
         # Moved this one from the drowning check above.
 
         # Check to see if we ate anything
-        food_hit_list = pygame.sprite.spritecollide(self, self.room.consumeable, True)
-        for food in food_hit_list:
-            self.corruption += food.corr_points
+        # food_hit_list = pygame.sprite.spritecollide(self, self.room.consumeable, True)
+        # for food in food_hit_list:
+        #     self.corruption += food.corr_points
+        #     self.wound = max(0, self.wound - food.health_points)
 
         # Check if we're going to die
         enemy_hit_list = pygame.sprite.spritecollide(self, self.room.enemy_list, False)
@@ -264,6 +278,9 @@ class Enemy(Living):
         self.change_y = 0
 
         self.mortality = mortality
+        self.talked = False
+        self.text = 'MONSTER: Rawr!'
+        self.talk_length = 60
 
     def update(self):
         """ Update the enemy position. """
@@ -271,6 +288,14 @@ class Enemy(Living):
         self.calc_grav()
         # Move left/right
         self.rect.x += self.change_x
+
+        if (abs(self.room.player.rect.x - self.rect.x) <= 200 and
+            self.room.player.rect.bottom == self.rect.bottom and
+            sign(self.change_x) == sign(self.room.player.rect.x - self.rect.x)):
+            if not self.talked:
+                self.talked = True
+        else:
+            self.talked = False
  
         # Did this update cause it to hit a wall?
         block_hit_list = pygame.sprite.spritecollide(self, self.room.wall_list, False)
@@ -317,23 +342,34 @@ class Friend(Enemy):
         Enemy.__init__(self, x, y, width, height, 0, 0, False)
         self.image = pygame.image.load(image_file_name).convert_alpha()
         self.image = pygame.transform.scale(self.image, (width, height))
+        self.talk_length = 240
 
-class Adult_Duck(Friend):
+    def update(self):
+        Enemy.update(self)
+        if abs(self.room.player.rect.x - self.rect.x) <= 100:
+            if not self.talked:
+                self.talked = True
+        else:
+            self.talked = False
+
+class AdultDuck(Friend):
     def __init__(self, x, y, width = 100, height = 100):
         self.width = width
         self.height = height
         Friend.__init__(self, x, y, self.width, self.height, "png/adult_duck.png")
+        self.text = "PARENT DUCK: Ugh! What are you?"
 
-class Child_Duck(Friend):
+class ChildDuck(Friend):
     def __init__(self, x, y, width = 75, height = 75):
         self.width = width
         self.height = height
         Friend.__init__(self, x, y, self.width, self.height, "png/child_duck_friend.png")
+        self.text = "BABY DUCK: Hi! Are you here to play?"
 
 class Edible(pygame.sprite.Sprite):
     """ This is the base class; any new foods should be modified from this one.
         Maybe make this an inherited class from Obstacle? """
-    def __init__(self, x, y, width, height, corr_points = 1):
+    def __init__(self, x, y, width, height, corr_points = 1, health_points = 50):
         """ Constructor for the wall that the player can run into. """
         # Call the parent's constructor
         pygame.sprite.Sprite.__init__(self)
@@ -342,13 +378,14 @@ class Edible(pygame.sprite.Sprite):
         self.image = pygame.image.load('png/edible.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (width, height))
         self.corr_points = corr_points
+        self.health_points = health_points
 
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
 
-class Friend_Edible(Edible):
+class FriendEdible(Edible):
     """ This is an edible food that only comes from when you have killed a friendly creature. """
     def __init__(self, x, y, width, height):
-        Edible.__init__(self, x, y, width, height, 5)
+        Edible.__init__(self, x, y, width, height, 5, 150)

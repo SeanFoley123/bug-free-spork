@@ -44,7 +44,7 @@ class Ground(Obstacle):
 
 		# Make the color and all different
 		self.image = pygame.Surface((w, h))
-		self.image.fill(pygame.Color('aquamarine4'))
+		self.image.fill((85, 140, 90))
 
 class Lava(Obstacle):
     """ Deadly red terrain. """
@@ -62,4 +62,4 @@ class Water(Obstacle):
 
         # Make the color correct
         self.image = pygame.Surface((w, h))
-        self.image.fill(pygame.Color('cadetblue1'))
+        self.image.fill((85, 200, 255))

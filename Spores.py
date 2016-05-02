@@ -81,10 +81,17 @@ class Decompose_Spore(Spore):
         for thing in self.room.can_climb:
             self.affected.add(thing)
 
-    def kill_it(self, other, consumeable_type):
+    def kill_it(self, other):
         """ Kills the creature and leaves a food in its place """
-        if other not in self.room.can_climb:
-            new_food = consumeable_type(other.rect.x, other.rect.y, 50, 50)
+        if isinstance(other, AdultDuck) or isinstance(other, ChildDuck):
+            new_food = FriendEdible(other.rect.x, other.rect.y, 75, 50)
+            height_change = other.rect.height - 50
+            new_food.rect.x = other.rect.x
+            new_food.rect.y = other.rect.y + height_change
+            new_food.player = other.room.player
+            other.room.consumeable.add(new_food)
+        elif isinstance(other, Enemy):
+            new_food = Edible(other.rect.x, other.rect.y, 50, 50)
             height_change = other.rect.height - 50
             new_food.rect.x = other.rect.x
             new_food.rect.y = other.rect.y + height_change
@@ -103,7 +110,7 @@ class Decompose_Spore(Spore):
 
         affected_hit_list = pygame.sprite.spritecollide(self, self.affected, False)
         for thing in affected_hit_list:
-            self.kill_it(thing, Edible)
+            self.kill_it(thing)
 
 class Ledge_Spore(Spore):
     """ Creates ledge-like fungi that allow you to climb up a surface. Cover the entire surface. """
@@ -142,7 +149,8 @@ class Ledge_Spore(Spore):
 
         unaffected_hit_list = pygame.sprite.spritecollide(self, self.unaffected, False)
         for thing in unaffected_hit_list:
-            self.kill()
+            if not isinstance(thing, Enemy):
+                self.kill()
 
         affected_hit_list = pygame.sprite.spritecollide(self, self.affected, False)
         for thing in affected_hit_list:

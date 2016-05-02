@@ -11,7 +11,7 @@ from Terrain import *
 # Colors - check out pygame.Colors. Probably does exactly what you want
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-BLUE = (50, 50, 255)
+BLUE = pygame.Color('cadetblue1')
  
 # Screen dimensions
 SCREEN_WIDTH = 800
@@ -22,7 +22,6 @@ SCREEN_H_MID = SCREEN_HEIGHT/2
 GROUND_LEVEL = 550
 STARTING_LEVEL = 100
 NEXT_LEVEL = -150
-
 
 class Room(object):
     """ This is a generic super-class used to define a level.
@@ -87,7 +86,7 @@ class Room_01(Room):
                  [100, 500, 750, 300, Ground],
                  [100, 425, 850, 375, Ground],
                  [100, 325, 950, 475, Ground],
-                 [650, 50, 1200, 350, Ground],
+                 [650, 100, 1200, 350, Ground],
                  [400, 200, 1450, 150, Ground],
                  [350, 125, 1500, 350, Ground],
                  [275, 50, 1575, 425, Ground],
@@ -125,8 +124,8 @@ class Room_01(Room):
                      [75, 75, 1750, 75, Enemy],
                      [75, 75, 2550, 75, Enemy],
                      [75, 75, 3700, 75, Enemy],
-                     [100, 100, 3700, 100, Adult_Duck],
-                     [75, 75, 2550, 75, Child_Duck]]
+                     [100, 100, 3700, 100, AdultDuck],
+                     [75, 75, 2550, 75, ChildDuck]]
  
         # Go through the array above and add obstacles
         for obstacle in room:
