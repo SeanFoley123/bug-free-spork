@@ -34,7 +34,7 @@ class Button(object):
     #defines parameters for the button
     def make_button_params(self):
         font = pygame.font.Font(pygame.font.get_default_font(), 24)
-        self.button_surf = font.render(self.text, True, self.color(), BLACK)
+        self.button_surf = font.render(self.text, True, self.color(), pygame.Color('red'))
         #self.button_params = (self.text, True, self.color())
 
     #makes the rect for the button

@@ -8,6 +8,7 @@ from Room import *
 from HUD import *
 from Menu import *
 from Intro import *
+from collections import OrderedDict
 
 # -- Global constants
  
@@ -21,8 +22,6 @@ SCREEN_H_MID = SCREEN_HEIGHT/2
 # Really important: we need to be consistent on how we define positions. Right now I'm using relative to the upper left hand 
 # corner of the current room. All sprites are defined at the center of their bounding rectangles, which might make rolling
 # over easier.
-
-Menu()
 
 class Controller(object):
     """ Main Program """
@@ -48,7 +47,7 @@ class Controller(object):
 
         # Initialize Menu
         self.menu = menu
-        self.menu_dict = {'Quit Game':self.quit_game, 'New Game':main, 'Resume':self.resume}
+        self.menu_dict = OrderedDict([('Resume', self.resume), ('New Game', main), ('Quit Game', self.quit_game)])
         self.menu.make_buttons(self.menu_dict.keys())
 
         # Put in all the HUD components
@@ -60,7 +59,8 @@ class Controller(object):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                self.done = True
+                pygame.quit()
+                sys.exit()
             if not self.menu.menu_on: 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
@@ -137,17 +137,6 @@ class Controller(object):
             # Update the HUD
             for piece in self.hud_components:
                 piece.update()
-    
-    def menu_is_on(self):
-        for event in pygame.event.get():
-            for button in self.menu.buttons:
-                if button.rect.collidepoint(pygame.mouse.get_pos()):
-                    button.hovered = True
-                    if pygame.mouse.get_pressed()[0]:
-                        x = button.pressed()
-                        self.menu_dict[x]()
-                else:
-                    button.hovered = False
 
     def change_room(self, direction):
         # Adds direction to current_room_no and initializes our new room
@@ -200,7 +189,6 @@ class View(object):
                 self.end_timer += 1
                 if self.end_timer >= self.end_timer_max:
                     other.menu.menu_on = True
-                    other.menu_is_on()
             else:
                 other.current_room.draw()
                 other.active_sprite_list.draw(other.current_room.world)

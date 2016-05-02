@@ -274,6 +274,7 @@ class Enemy(Living):
         self.end_x = x + distance - self.rect.width
 
         # Set speed vector
+        self.speed = abs(speed)
         self.change_x = speed
         self.change_y = 0
 
@@ -281,6 +282,7 @@ class Enemy(Living):
         self.talked = False
         self.text = 'MONSTER: Rawr!'
         self.talk_length = 60
+        print self.speed
 
     def update(self):
         """ Update the enemy position. """
@@ -292,9 +294,11 @@ class Enemy(Living):
         if (abs(self.room.player.rect.x - self.rect.x) <= 200 and
             self.room.player.rect.bottom == self.rect.bottom and
             sign(self.change_x) == sign(self.room.player.rect.x - self.rect.x)):
+            self.change_x = sign(self.change_x)*self.speed*1.5
             if not self.talked:
                 self.talked = True
         else:
+            self.change_x = sign(self.change_x)*self.speed
             self.talked = False
  
         # Did this update cause it to hit a wall?
