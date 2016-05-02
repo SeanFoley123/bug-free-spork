@@ -20,6 +20,8 @@ SCREEN_H_MID = SCREEN_HEIGHT/2
 # corner of the current room. All sprites are defined at the center of their bounding rectangles, which might make rolling
 # over easier.
 
+Menu()
+
 class Controller(object):
     """ Main Program """
     def __init__(self):
