@@ -7,6 +7,7 @@ from Terrain import *
 from Room import *
 from HUD import *
 from Menu import *
+from Intro import *
 
 # -- Global constants
  
@@ -84,7 +85,14 @@ class Controller(object):
 
                     # Talk
                     if event.key == pygame.K_t:
-                        self.hud_components.add(Text(other, self.player, 'hullabaloo'))
+                        self.hud_components.add(Text(other, self.player, self.player.current_chat, 240))
+
+                    # Eat stuff
+                    if event.key == pygame.K_d:
+                        food_hit_list = pygame.sprite.spritecollide(self.player, self.current_room.consumeable, True)
+                        for food in food_hit_list:
+                            self.player.corruption += food.corr_points
+                            self.player.wound = max(0, self.player.wound - food.health_points)
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT and self.player.change_x < 0:
@@ -173,12 +181,8 @@ class Controller(object):
         self.done = True
 
 class View(object):
-    def __init__(self, menu):
-        # Set the height and width of the screen
-        size = [SCREEN_WIDTH, SCREEN_HEIGHT]
-        self.screen = pygame.display.set_mode(size)
-     
-        pygame.display.set_caption("Symbiosis")
+    def __init__(self, screen, menu):
+        self.screen = screen
 
         # Where relative to the screen the world should be blit
         self.position = (0, 0)
@@ -226,7 +230,7 @@ def main():
 
     menu = Menu(True)
 
-    view = View(menu)
+    view = View(screen, menu)
     controller = Controller(menu)
 
     while not controller.done:
@@ -242,4 +246,15 @@ def main():
     pygame.quit()
 
     #view.play()
+
+pygame.init()
+        
+# Used to manage how fast the screen updates
+clock = pygame.time.Clock()
+# Set the height and width of the screen
+size = [SCREEN_WIDTH, SCREEN_HEIGHT]
+screen = pygame.display.set_mode(size)
+     
+pygame.display.set_caption("Symbiosis")
+run(screen, clock)
 main()

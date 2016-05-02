@@ -92,11 +92,17 @@ class MushroomGuy(Living):
         for index, image in enumerate(self.image_list):
             self.image_list[index] = pygame.transform.scale(image, self.size)
 
+        # Make list of things your mushroom will say to you
+        self.chat_list = ["SYMBIOTE: We won't get far like this. We must get stronger. C'mon, don't you want to find your family?",
+                            "SYMBIOTE: Look at how strong we are! We don't need anyone else, aren't I enough for you?",
+                            "SYMBIOTE: I... wow. I didn't realize you'd go... that far."]
+
         self.speed = 6
 
         # Corruption starts at zero. Eating mushrooms increases corruption. As corruption increases,
-        #  player avatar image changes (every 5 points)
+        #  player avatar image changes (every corrupt_change points)
         self.corruption = 0
+        self.corrupt_change = 7
 
         # Set shot direction: 1 = right, -1 = left
         self.shot_dir = 1
@@ -153,14 +159,15 @@ class MushroomGuy(Living):
 
     def how_corrupt(self):
         """ Changes the image based on the corruption level of the player. """
-        list_index = self.corruption/5
+        list_index = self.corruption/self.corrupt_change
         if list_index > len(self.image_list) - 1:
             list_index = len(self.image_list) - 1
         self.image = self.image_list[list_index]
+        self.current_chat = self.chat_list[list_index]
 
     def draw_flipped(self):
         """Flips the player's sprite based on the value assigned to self.flipped (controlled by keypress)"""
-        list_index = self.corruption/5
+        list_index = self.corruption/self.corrupt_change
         if list_index > len(self.image_list) - 1:
             list_index = len(self.image_list) - 1
         if self.flipped:
@@ -231,10 +238,10 @@ class MushroomGuy(Living):
         # Moved this one from the drowning check above.
 
         # Check to see if we ate anything
-        food_hit_list = pygame.sprite.spritecollide(self, self.room.consumeable, True)
-        for food in food_hit_list:
-            self.corruption += food.corr_points
-            self.wound = max(0, self.wound - food.health_points)
+        # food_hit_list = pygame.sprite.spritecollide(self, self.room.consumeable, True)
+        # for food in food_hit_list:
+        #     self.corruption += food.corr_points
+        #     self.wound = max(0, self.wound - food.health_points)
 
         # Check if we're going to die
         enemy_hit_list = pygame.sprite.spritecollide(self, self.room.enemy_list, False)
@@ -336,6 +343,14 @@ class Friend(Enemy):
         self.image = pygame.image.load(image_file_name).convert_alpha()
         self.image = pygame.transform.scale(self.image, (width, height))
         self.talk_length = 240
+
+    def update(self):
+        Enemy.update(self)
+        if abs(self.room.player.rect.x - self.rect.x) <= 100:
+            if not self.talked:
+                self.talked = True
+        else:
+            self.talked = False
 
 class AdultDuck(Friend):
     def __init__(self, x, y, width = 100, height = 100):
