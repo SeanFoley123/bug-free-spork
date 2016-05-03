@@ -267,7 +267,7 @@ class MushroomGuy(Living):
         self.draw_flipped()
 
         # Turn off death for easier testing
-        death = True
+        death = False
         if not death:
             self.wound = 0
 
@@ -276,7 +276,7 @@ class MushroomGuy(Living):
 
 class Enemy(Living):
     """ This is the base class for anything that is alive and should move that isn't the player. """
-    def __init__(self, x, y, width, height, speed = -2, distance = -200, mortality = True):
+    def __init__(self, x, y, width, height, end_x, speed = -2, mortality = True):
         """ x = upper left corner x component
             y = upper left corner y component
             width = x dimension
@@ -288,8 +288,8 @@ class Enemy(Living):
         Living.__init__(self, x, y, width, height, 'png/enemy.png', speed)
 
         # Set the range of values it can go between
-        self.start_x = x
-        self.end_x = x + distance - self.rect.width
+        self.start_x = x - width
+        self.end_x = end_x
 
         # Set speed vector
         self.speed = abs(speed)
@@ -311,16 +311,16 @@ class Enemy(Living):
         # If you talked last time, you don't talk this time
         self.talked = False
         #Check if you're on the same level as the player and close to the player
-        if (abs(self.room.player.rect.x - self.rect.x) <= 200 and
+        if (abs(self.room.player.rect.centerx - self.rect.centerx) <= 300 and
             self.room.player.rect.bottom == self.rect.bottom):
             # Move towards him ISSUE: Enemy occasionally teleport far away and disappears
-            self.change_x = sign(self.room.player.rect.x - self.rect.x)*self.speed
+            self.change_x = sign(self.room.player.rect.centerx - self.rect.centerx)*self.speed*1.5
             if not self.near_player:       # If I wasn't near him last step
                 self.talked = True
             self.near_player = True
         else:
             #Reset your speed if you choose to change it
-            # self.change_x = sign(self.change_x)*self.speed
+            self.change_x = sign(self.change_x)*self.speed
             self.near_player = False
  
         # Did this update cause it to hit a wall?
@@ -338,8 +338,10 @@ class Enemy(Living):
             self.change_x = -self.change_x
 
         # Check to see if it has hit the end of its range
-        if self.rect.x <= self.end_x or self.rect.x >= self.start_x:
-            self.change_x = -self.change_x
+        if self.rect.x <= self.end_x:
+            self.change_x = self.speed
+        elif self.rect.x >= self.start_x:
+            self.change_x = -self.speed
         # Move up/down
         self.rect.y += self.change_y
  
@@ -361,7 +363,7 @@ class Enemy(Living):
 
 class Friend(Enemy):
     """ A class of living creatures that will not kill you. Currently, it does not move."""
-    def __init__(self, x, y, width, height, image_file_name):
+    def __init__(self, x, y, width, height, not_used, image_file_name):
         """ x = upper left corner x component
             y = upper left corner y component
             width = x dimension

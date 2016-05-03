@@ -119,12 +119,13 @@ class Room_01(Room):
                         [50, 50, 2600, 250, Edible],
                         [50, 50, 3950, 150, Edible]]
 
-        # Enemies on the level
-        enemy_list = [[75, 75, 400, 225, Enemy],
-                     [75, 75, 1750, 75, Enemy],
-                     [75, 75, 2550, 75, Enemy],
-                     [75, 75, 3700, 75, Enemy],
-                     [100, 100, 3700, 100, AdultDuck],
+        # Enemies on the level- (width, height, start_x, start_y, end_x)
+        enemy_list = [[75, 75, 500, 225, 200, Enemy],
+                     [75, 75, 1850, 75, 1450, Enemy],
+                     [75, 75, 2650, 75, 2252, Enemy],
+                     [75, 75, 3800, 75, 3400, Enemy]]
+
+        friend_list = [[100, 100, 3700, 100, AdultDuck],
                      [75, 75, 2550, 75, ChildDuck]]
  
         # Go through the array above and add obstacles
@@ -150,5 +151,5 @@ class Room_01(Room):
             self.consumeable.add(block)
 
         for enemy in enemy_list:
-            block = enemy[4](enemy[2], enemy[3], enemy[0], enemy[1])
+            block = enemy[5](enemy[2], enemy[3], enemy[0], enemy[1], enemy[4])
             self.enemy_list.add(block)

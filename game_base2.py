@@ -154,7 +154,7 @@ class Controller(object):
             enemy.room = self.current_room
 
         self.player.room = self.current_room
-        self.player.rect.x = 0
+        self.player.rect.x = 1200
         self.player.rect.y = 0
 
     def save(self):
@@ -209,6 +209,8 @@ class View(object):
                 self.screen.blit(other.current_room.world, (-self.position[0], -self.position[1]))
                 other.hud_components.draw(self.screen)
             self.menu.draw(self.screen)
+            # Prints out mouse position
+            print (self.position[0] + pygame.mouse.get_pos()[0], self.position[1] + pygame.mouse.get_pos()[1])
 
             # Go ahead and update the screen with what we've drawn.
             pygame.display.flip()
