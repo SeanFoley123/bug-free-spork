@@ -47,7 +47,7 @@ class Controller(object):
 
         # Initialize Menu
         self.menu = menu
-        self.menu_dict = OrderedDict([('Resume', self.resume), ('New Game', main), ('Quit Game', self.quit_game)])
+        self.menu_dict = OrderedDict([('Resume', self.resume), ('New Game', menu), ('Quit Game', self.quit_game)])
         self.menu.make_buttons(self.menu_dict.keys())
 
         # Put in all the HUD components
@@ -90,11 +90,12 @@ class Controller(object):
                         self.player.talked = True
 
                     # Eat stuff
-                    if event.key == pygame.K_d:
-                        food_hit_list = pygame.sprite.spritecollide(self.player, self.current_room.consumeable, True)
-                        for food in food_hit_list:
-                            self.player.corruption += food.corr_points
-                            self.player.wound = max(0, self.player.wound - food.health_points)
+                    if event.key == pygame.K_DOWN:
+                        food_hit_list = pygame.sprite.spritecollide(self.player, self.current_room.consumeable, False)
+                        food = food_hit_list[0]
+                        self.player.corruption += food.corr_points
+                        self.player.wound = max(0, self.player.wound - food.health_points)
+                        food.kill()
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT and self.player.change_x < 0:
@@ -154,7 +155,7 @@ class Controller(object):
             enemy.room = self.current_room
 
         self.player.room = self.current_room
-        self.player.rect.x = 1200
+        self.player.rect.x = 0
         self.player.rect.y = 0
 
     def save(self):
@@ -177,6 +178,9 @@ class Controller(object):
 
     def quit_game(self):
         self.done = True
+
+    # def new_game(self):
+    #     pass
 
 class View(object):
     def __init__(self, screen, menu):
@@ -209,8 +213,6 @@ class View(object):
                 self.screen.blit(other.current_room.world, (-self.position[0], -self.position[1]))
                 other.hud_components.draw(self.screen)
             self.menu.draw(self.screen)
-            # Prints out mouse position
-            print (self.position[0] + pygame.mouse.get_pos()[0], self.position[1] + pygame.mouse.get_pos()[1])
 
             # Go ahead and update the screen with what we've drawn.
             pygame.display.flip()

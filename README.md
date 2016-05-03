@@ -15,9 +15,13 @@ To play, run the file game_base2.py. This imports the modules Spores, LivingThin
 - Terrain contains the classes for the platforms and surfaces and obstacles.
 - LivingThings contains the classes for the player and creatures that move.
 - Room contains and constructs the levels, and imports the above modules.
+- HUD contains classes for dialogue and stat bars
+- Menu creates a menu
+- Intro contains Video/cut-scenes
+- game_base2 displays and runs the game using a Controller and View class
 
 ## Keybindings
-Use the arrow keys to move. Spacebar throws spores. Up arrow key allows you to jump. Don't hit the enemy, try to survive!
+Use the left and right arrow keys to move. Spacebar throws spores; change which type using 'e' (grows ledges) and 'q' (kills and destroys objects). The down arrow key lets you eat mushrooms to regain health. Don't hit the enemy, try to survive!
 
 ## ...Bugs
 If you are touching the wall while touching lava, you don't die.

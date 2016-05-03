@@ -123,10 +123,9 @@ class Room_01(Room):
         enemy_list = [[75, 75, 500, 225, 200, Enemy],
                      [75, 75, 1850, 75, 1450, Enemy],
                      [75, 75, 2650, 75, 2252, Enemy],
-                     [75, 75, 3800, 75, 3400, Enemy]]
-
-        friend_list = [[100, 100, 3700, 100, AdultDuck],
-                     [75, 75, 2550, 75, ChildDuck]]
+                     [75, 75, 3800, 75, 3400, Enemy],
+                     [100, 100, 3700, 100, 0, AdultDuck],
+                     [75, 75, 2550, 75, 0, ChildDuck]]
  
         # Go through the array above and add obstacles
         for obstacle in room:

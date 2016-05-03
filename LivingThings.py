@@ -146,19 +146,19 @@ class MushroomGuy(Living):
         self.change_x = 0
 
     def jump(self):
-        """ Called when user hits 'jump' button. """
+        """ Called when user hits 'jump' button. Currently does: nothing"""
+        pass
+        # # move down a bit and see if there is a platform below us.
+        # # Move down 2 pixels because it doesn't work well if we only move down
+        # # 1 when working with a platform moving down.
+        # self.rect.y += 2
+        # wall_hit_list = pygame.sprite.spritecollide(self, self.room.wall_list, False)
+        # self.rect.y -= 2
  
-        # move down a bit and see if there is a platform below us.
-        # Move down 2 pixels because it doesn't work well if we only move down
-        # 1 when working with a platform moving down.
-        self.rect.y += 2
-        wall_hit_list = pygame.sprite.spritecollide(self, self.room.wall_list, False)
-        self.rect.y -= 2
- 
-        # If it is ok to jump, set our speed upwards
-        # That's a really cool way to do this
-        if len(wall_hit_list) > 0 and not self.flipped:
-            self.change_y = -5
+        # # If it is ok to jump, set our speed upwards
+        # # That's a really cool way to do this
+        # if len(wall_hit_list) > 0 and not self.flipped:
+        #     self.change_y = -5
 
     #TODO: possible better way to do this: need to discuss
     # a better way to do this may be to keep track of the current sprite in a variable  
@@ -267,7 +267,7 @@ class MushroomGuy(Living):
         self.draw_flipped()
 
         # Turn off death for easier testing
-        death = False
+        death = True
         if not death:
             self.wound = 0
 
@@ -389,18 +389,24 @@ class Friend(Enemy):
         return 'Friend'
 
 class AdultDuck(Friend):
-    def __init__(self, x, y, width = 100, height = 100):
+    def __init__(self, x, y, width = 100, height = 100, not_used = 0):
         self.width = width
         self.height = height
-        Friend.__init__(self, x, y, self.width, self.height, "png/adult_duck.png")
+        Friend.__init__(self, x, y, self.width, self.height, not_used, "png/adult_duck.png")
         self.text = "PARENT DUCK: Ugh! What are you?"
 
 class ChildDuck(Friend):
-    def __init__(self, x, y, width = 75, height = 75):
+    def __init__(self, x, y, width = 75, height = 75, not_used = 0):
         self.width = width
         self.height = height
-        Friend.__init__(self, x, y, self.width, self.height, "png/child_duck_friend.png")
+        Friend.__init__(self, x, y, self.width, self.height, not_used, "png/child_duck_friend.png")
         self.text = "BABY DUCK: Hi! Are you here to play?"
+
+class Log(Friend):
+    pass
+
+class TutorialDuck(ChildDuck):
+    pass
 
 class Edible(pygame.sprite.Sprite):
     """ This is the base class; any new foods should be modified from this one.
