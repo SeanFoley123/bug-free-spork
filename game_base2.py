@@ -229,7 +229,7 @@ def main():
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
 
-    menu = Menu(True)
+    menu = Menu(False)
 
     view = View(screen, menu)
     controller = Controller(menu)
