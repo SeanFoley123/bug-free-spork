@@ -12,9 +12,19 @@ class IntroMovie(object):
 		self.done = False
 
 		# Initialize the list of images in order of which you want displayed and size them
-		self.image_list = [pygame.image.load("dog.jpg"),
-							pygame.image.load("evil_dog1.jpg"),
-							pygame.image.load("evilmushroom.png")
+		self.image_list = [pygame.image.load("png/title.png").convert_alpha(),
+							pygame.image.load("png/frame2.png").convert_alpha(),
+							pygame.image.load("png/frame3.png").convert_alpha(),
+							pygame.image.load("png/frame4.png").convert_alpha(),
+							pygame.image.load("png/frame5.png").convert_alpha(),
+							pygame.image.load("png/frame6.png").convert_alpha(),
+							pygame.image.load("png/frame7.png").convert_alpha(),
+							pygame.image.load("png/frame8.png").convert_alpha(),
+							pygame.image.load("png/frame9.png").convert_alpha(),
+							pygame.image.load("png/frame10.png").convert_alpha(),
+							pygame.image.load("png/frame11.png").convert_alpha(),
+							pygame.image.load("png/frame12.png").convert_alpha(),
+							pygame.image.load("png/frame13.png").convert_alpha()
 							]
 
 		# Set the starting image
