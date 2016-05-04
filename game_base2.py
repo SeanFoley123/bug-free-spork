@@ -36,6 +36,7 @@ class Controller(object):
 
         self.room_list.append( Room_00(self.player) )
         self.room_list.append( Room_01(self.player) )
+        self.room_list.append( Room_02(self.player) )
  
         # Set the first level
         self.current_room_no = 0
@@ -159,7 +160,7 @@ class Controller(object):
             # if self.current_room.is_tutorial:
             #     self.hud_components.add(Text(other, self.player, talker.text[self.player.rect.centerx/500], 1, speaker)))
 
-            if self.player.rect.right == self.current_room.world_size[0] and self.current_room.next_level != 0:
+            if self.player.rect.right == self.current_room.world_size[0] and self.current_room != self.room_list[-1]:
                 self.change_room(self.current_room.next_level)
 
     def change_room(self, direction):
