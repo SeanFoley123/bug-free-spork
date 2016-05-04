@@ -266,7 +266,7 @@ class MushroomGuy(Living):
         self.draw_flipped()
 
         # Turn off death for easier testing
-        death = True
+        death = False
         if not death:
             self.wound = 0
 
@@ -372,17 +372,34 @@ class Friend(Enemy):
         Enemy.__init__(self, x, y, width, height, 0, 0, False)
         self.image = pygame.image.load(image_file_name).convert_alpha()
         self.image = pygame.transform.scale(self.image, (width, height))
+        self.near_player = False
         self.talk_length = 240
 
     def update(self):
-        Enemy.update(self)
+        self.calc_grav()
         self.talked = False
-        if abs(self.room.player.rect.x - self.rect.x) <= 150:
+        if abs(self.room.player.rect.centerx - self.rect.centerx) <= 150:
             if not self.near_player:
                 self.talked = True
             self.near_player = True
         else:
             self.near_player = False
+
+        # Move up/down
+        self.rect.y += self.change_y
+ 
+        # Check and see if it hit anything
+        block_hit_list = pygame.sprite.spritecollide(self, self.room.wall_list, False)
+        for block in block_hit_list:
+ 
+            # Reset its position based on the top/bottom of the object.
+            if self.change_y > 0:
+                self.rect.bottom = block.rect.top
+            else:
+                self.rect.top = block.rect.bottom
+
+            # Stop its vertical movement
+            self.change_y = 0
 
     def __str__(self):
         return 'Friend'

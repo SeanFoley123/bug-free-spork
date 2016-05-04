@@ -33,7 +33,7 @@ class Controller(object):
      
         # Create all the levels
         self.room_list = []
-        self.room_list.append( Room_00(self.player) )
+        self.room_list.append( Room_01(self.player) )
  
         # Set the first level
         self.current_room_no = 0
@@ -135,6 +135,8 @@ class Controller(object):
             if talkers:
                 # This bit removes all but the most important message. In the event of a tie, it removes the earlier message.
                 messages = [message for message in self.hud_components if isinstance(message, Text)]
+                for message in messages:
+                    print message
                 most_important = max(messages)
                 self.hud_components.remove([message for message in messages if message.words != most_important.words])
             
@@ -159,7 +161,7 @@ class Controller(object):
             enemy.room = self.current_room
 
         self.player.room = self.current_room
-        self.player.rect.x = 0
+        self.player.rect.x = 2300
         self.player.rect.y = 0
 
     def save(self):
