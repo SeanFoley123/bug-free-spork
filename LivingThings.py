@@ -429,7 +429,12 @@ class Log(Enemy):
 
 class Tutorial(object):
     def __init__(self):
-        self.text = []
+        self.text = ['Shoot a spore to decompose the enemy with space! Then eat it... if you dare.',
+                    "You're not very buoyant unless you 'f'lip over!",
+                    "Try getting up higher using the things you know!",
+                    "Y'know... lava doesn't look very safe to touch.",
+                    "Use 'e' and 'q' to switch between your spore powers!",
+                    "Talk to me with 't'. Also... that duck looks... tasty. Er, fun. Yeah. Fun."]
 
 class Edible(pygame.sprite.Sprite):
     """ This is the base class; any new foods should be modified from this one.

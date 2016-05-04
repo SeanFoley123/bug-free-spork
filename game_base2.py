@@ -33,6 +33,10 @@ class Controller(object):
      
         # Create all the levels
         self.room_list = []
+<<<<<<< HEAD
+=======
+        self.room_list.append( Room_00(self.player) )
+>>>>>>> f613c32a0002097213a7bd558f10bb0c615cf7ed
         self.room_list.append( Room_01(self.player) )
  
         # Set the first level
@@ -151,6 +155,12 @@ class Controller(object):
             # Update the HUD
             for piece in self.hud_components:
                 piece.update()
+
+            # if self.current_room.is_tutorial:
+            #     self.hud_components.add(Text(other, self.player, talker.text[self.player.rect.centerx/500], 1, speaker)))
+
+            if self.player.rect.right == self.current_room.world_size[0] and self.current_room.next_level != 0:
+                self.change_room(self.current_room.next_level)
 
     def change_room(self, direction):
         # Adds direction to current_room_no and initializes our new room
