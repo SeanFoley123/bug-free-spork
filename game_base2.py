@@ -53,6 +53,9 @@ class Controller(object):
         # Put in all the HUD components
         self.hud_components = pygame.sprite.Group()
         self.hud_components.add(HealthBar(self.player))
+        self.spore_box = Spore_Boxes(self.current_room)
+        self.hud_components.add(self.spore_box)
+
 
     def update(self, other):
         # -------- Main Program Loop -----------
@@ -67,12 +70,12 @@ class Controller(object):
                         self.player.go_left()
                     if event.key == pygame.K_RIGHT:
                         self.player.go_right()
-                    if event.key == pygame.K_UP:
-                        self.player.jump()
 
                     if event.key in self.spores_dict:
                         # Switches the active projectile spore to the ledge-maker
+                        self.spore_box.change()
                         self.current_room.active_spore = self.current_room.spore_list[self.spores_dict[event.key]]
+                        self.spore_box.change()
 
                     if event.key == pygame.K_SPACE:
                         spore = self.current_room.active_spore(self.player)
@@ -92,10 +95,11 @@ class Controller(object):
                     # Eat stuff
                     if event.key == pygame.K_DOWN:
                         food_hit_list = pygame.sprite.spritecollide(self.player, self.current_room.consumeable, False)
-                        food = food_hit_list[0]
-                        self.player.corruption += food.corr_points
-                        self.player.wound = max(0, self.player.wound - food.health_points)
-                        food.kill()
+                        if food_hit_list:
+                            food = food_hit_list[0]
+                            self.player.corruption += food.corr_points
+                            self.player.wound = max(0, self.player.wound - food.health_points)
+                            food.kill()
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT and self.player.change_x < 0:
@@ -118,7 +122,7 @@ class Controller(object):
 
         if not self.menu.menu_on:
             # Checks if c is pressed, and climbs if it is
-            if pygame.key.get_pressed()[pygame.K_c]:
+            if pygame.key.get_pressed()[pygame.K_UP]:
                 self.player.climb()
             if pygame.key.get_pressed()[pygame.K_LEFT]: 
                 self.player.go_left()
@@ -213,7 +217,8 @@ class View(object):
                 self.screen.blit(other.current_room.world, (-self.position[0], -self.position[1]))
                 other.hud_components.draw(self.screen)
             self.menu.draw(self.screen)
-
+            #Please keep this one in; it's super useful for placing enemies/debugging
+            #print (self.position[0] + pygame.mouse.get_pos()[0], self.position[1] + pygame.mouse.get_pos()[1])
             # Go ahead and update the screen with what we've drawn.
             pygame.display.flip()
 
