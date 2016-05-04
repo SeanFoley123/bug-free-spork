@@ -120,7 +120,7 @@ class Room_01(Room):
                         [50, 50, 3950, 150, Edible]]
 
         # Enemies on the level- (width, height, start_x, start_y, end_x)
-        enemy_list = [[75, 75, 500, 225, 200, Enemy],
+        enemy_list = [[75, 75, 500, 300, 200, Enemy],
                      [75, 75, 1850, 75, 1450, Enemy],
                      [75, 75, 2650, 75, 2252, Enemy],
                      [75, 75, 3800, 75, 3400, Enemy],
