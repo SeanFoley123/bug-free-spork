@@ -33,7 +33,7 @@ class Controller(object):
      
         # Create all the levels
         self.room_list = []
-        self.room_list.append( Room_01(self.player) )
+        self.room_list.append( Room_00(self.player) )
  
         # Set the first level
         self.current_room_no = 0

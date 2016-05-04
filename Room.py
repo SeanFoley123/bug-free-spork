@@ -152,3 +152,68 @@ class Room_01(Room):
         for enemy in enemy_list:
             block = enemy[5](enemy[2], enemy[3], enemy[0], enemy[1], enemy[4])
             self.enemy_list.add(block)
+
+class Room_00(Room):
+    """ Definition for level 1. """
+ 
+    def __init__(self, player):
+        """ Create level 1. """
+ 
+        # Call the parent constructor
+        Room.__init__(self, player)
+        
+        self.world_size = (3000, 800)
+        self.world = pygame.Surface(self.world_size)
+
+        # Solid objects. Array with width, height, x, y, and class of obstacle
+        room = [[3000, 200, 0, 600, Ground],
+                [500, 400, 0, 200, Ground],
+                [200, 300, 500, 300, Ground],
+                [300, 200, 700, 400, Ground],
+                [200, 300, 1000, 300, Ground],
+                [200, 500, 1500, 100, Ground],
+                [100, 400, 1700, 200, Ground],
+                [200, 300, 2000, 300, Lava],
+                [200, 300, 2200, 300, Ground],
+                [600, 500, 2400, 100, Ground]]
+
+        # Objects that hinder movement (and drown the player if they are not flipped) 
+        # Array with width, height, x, y, and class of obstacle
+        sludge = [[300, 100, 700, 300, Water],
+                    [300, 300, 1200, 300, Water],
+                    [200, 300, 1800, 300, Water]]
+
+        # Objects you can eat. Array with width, height, x, y, and class of obstacle
+        consumeable = []
+
+        # Enemies on the level- (width, height, start_x, start_y, end_x)
+        enemy_list = [[100, 100, 400, 100, 0, Log],
+                     [100, 100, 1100, 200, 0, Enemy],
+                     [75, 75, 2900, 25, 2400, Enemy],
+                     [75, 75, 2900, 25, 0, ChildDuck]]
+ 
+        # Go through the array above and add obstacles
+        for obstacle in room:
+            block = obstacle[4](obstacle[2], obstacle[3], obstacle[0], obstacle[1])
+            block.rect.x = obstacle[2]
+            block.rect.y = obstacle[3]
+            block.player = self.player
+            self.wall_list.add(block)
+
+        for obstacle in sludge:
+            block = obstacle[4](obstacle[2], obstacle[3], obstacle[0], obstacle[1])
+            block.rect.x = obstacle[2]
+            block.rect.y = obstacle[3]
+            block.player = self.player
+            self.sludge.add(block)
+
+        for food in consumeable:
+            block = food[4](food[2], food[3], food[0], food[1])
+            block.rect.x = food[2]
+            block.rect.y = food[3]
+            block.player = self.player
+            self.consumeable.add(block)
+
+        for enemy in enemy_list:
+            block = enemy[5](enemy[2], enemy[3], enemy[0], enemy[1], enemy[4])
+            self.enemy_list.add(block)

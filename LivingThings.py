@@ -405,11 +405,14 @@ class ChildDuck(Friend):
                     "BABY DUCK: Uh... what's that on your head?",
                     "BABY DUCK: Eek! Get away! MOMMY!"]
 
-class Log(Friend):
-    pass
+class Log(Enemy):
+    def __init__(self, x, y, width = 100, height = 100, not_used = 0):
+        Enemy.__init__(self, x, y, width, height, not_used, speed = 0, mortality = False)
+        self.text = ["Shhhh, it's sleeping", "Hah, it can't see us coming!", "This just makes it easier!"]
 
-class TutorialDuck(ChildDuck):
-    pass
+class Tutorial(object):
+    def __init__(self):
+        self.text = []
 
 class Edible(pygame.sprite.Sprite):
     """ This is the base class; any new foods should be modified from this one.
