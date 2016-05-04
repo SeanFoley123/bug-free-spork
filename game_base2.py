@@ -47,7 +47,7 @@ class Controller(object):
 
         # Initialize Menu
         self.menu = menu
-        self.menu_dict = OrderedDict([('Resume', self.resume), ('New Game', menu), ('Quit Game', self.quit_game)])
+        self.menu_dict = OrderedDict([('Resume', self.resume), ('New Game', main), ('Quit Game', self.quit_game)])
         self.menu.make_buttons(self.menu_dict.keys())
 
         # Put in all the HUD components
@@ -133,7 +133,7 @@ class Controller(object):
                         
             talkers = [creature for creature in self.current_room.enemy_list if creature.talked] + [player for player in [self.player] if player.talked]
             for talker in talkers:
-                self.hud_components.add(Text(other, self.player, talker.text, talker.talk_length, talker.__str__()))
+                self.hud_components.add(Text(other, self.player, talker.text[self.player.list_index], talker.talk_length, talker.__str__()))
             if talkers:
                 # This bit removes all but the most important message. In the event of a tie, it removes the earlier message.
                 messages = [message for message in self.hud_components if isinstance(message, Text)]
@@ -236,7 +236,7 @@ def main():
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
 
-    menu = Menu(True)
+    menu = Menu(False)
 
     view = View(screen, menu)
     controller = Controller(menu)
