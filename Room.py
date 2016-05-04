@@ -42,6 +42,12 @@ class Room(object):
          
         # Background image
         self.background = None
+
+        # Makes it so you can change to the next level if there is one
+        self.next_level = 0
+
+        # Checks if the Room is a tutorial level
+        self.is_tutorial = False
  
     # Update everythign on this level
     def update(self):
@@ -164,6 +170,9 @@ class Room_00(Room):
         
         self.world_size = (3000, 800)
         self.world = pygame.Surface(self.world_size)
+        self.next_level = 1
+        self.is_tutorial = True
+        self.tutorial = Tutorial()
 
         # Solid objects. Array with width, height, x, y, and class of obstacle
         room = [[3000, 200, 0, 600, Ground],
