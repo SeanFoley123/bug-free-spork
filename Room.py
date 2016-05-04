@@ -188,7 +188,7 @@ class Room_00(Room):
 
         # Enemies on the level- (width, height, start_x, start_y, end_x)
         enemy_list = [[100, 100, 400, 100, 0, Log],
-                     [100, 100, 1100, 200, 0, Enemy],
+                     [100, 100, 1100, 200, 0, Log],
                      [75, 75, 2900, 25, 2400, Enemy],
                      [75, 75, 2900, 25, 0, ChildDuck]]
  
