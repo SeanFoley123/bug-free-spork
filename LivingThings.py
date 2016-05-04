@@ -95,9 +95,9 @@ class MushroomGuy(Living):
             self.image_list[index] = pygame.transform.scale(image, self.size)
 
         # Make list of things your mushroom will say to you
-        self.chat_list = ["SYMBIOTE: We won't get far like this. We must get stronger. C'mon, don't you want to find your family?",
+        self.text = ["SYMBIOTE: C'mon, we won't be able to find your family if we don't eat something...!",
                             "SYMBIOTE: Look at how strong we are! We don't need anyone else, aren't I enough for you?",
-                            "SYMBIOTE: I... wow. I didn't realize you'd go... that far."]
+                            "SYMBIOTE: Wow, um... I think that's... probably enough?"]
 
         self.speed = 6
 
@@ -105,6 +105,7 @@ class MushroomGuy(Living):
         #  player avatar image changes (every corrupt_change points)
         self.corruption = 0
         self.corrupt_change = 7
+        self.list_index = 0
 
         # Set shot direction: 1 = right, -1 = left
         self.shot_dir = 1
@@ -166,19 +167,17 @@ class MushroomGuy(Living):
 
     def how_corrupt(self):
         """ Changes the image based on the corruption level of the player. """
-        list_index = self.corruption/self.corrupt_change
-        if list_index > len(self.image_list) - 1:
-            list_index = len(self.image_list) - 1
-        self.image = self.image_list[list_index]
-        self.text = self.chat_list[list_index]
+        self.list_index = self.corruption/self.corrupt_change
+        if self.list_index > len(self.image_list) - 1:
+            self.list_index = len(self.image_list) - 1
+        self.image = self.image_list[self.list_index]
 
     def draw_flipped(self):
         """Flips the player's sprite based on the value assigned to self.flipped (controlled by keypress)"""
-        list_index = self.corruption/self.corrupt_change
-        if list_index > len(self.image_list) - 1:
-            list_index = len(self.image_list) - 1
+        if self.list_index > len(self.image_list) - 1:
+            self.list_index = len(self.image_list) - 1
         if self.flipped:
-            self.image = pygame.transform.flip(self.image_list[list_index], False, True)
+            self.image = pygame.transform.flip(self.image_list[self.list_index], False, True)
 
     def climb(self):
         if pygame.sprite.spritecollide(self, self.room.can_climb, False):
@@ -297,7 +296,7 @@ class Enemy(Living):
         self.change_y = 0
 
         self.mortality = mortality
-        self.text = 'MONSTER: Rawr!'
+        self.text = ['MONSTER: Rawr!', 'MONSTER: Rawr!', 'MONSTER: Rawr!']
         self.talk_length = 60
 
         self.near_player = False
@@ -378,7 +377,7 @@ class Friend(Enemy):
     def update(self):
         Enemy.update(self)
         self.talked = False
-        if abs(self.room.player.rect.x - self.rect.x) <= 100:
+        if abs(self.room.player.rect.x - self.rect.x) <= 150:
             if not self.near_player:
                 self.talked = True
             self.near_player = True
@@ -393,14 +392,18 @@ class AdultDuck(Friend):
         self.width = width
         self.height = height
         Friend.__init__(self, x, y, self.width, self.height, not_used, "png/adult_duck.png")
-        self.text = "PARENT DUCK: Ugh! What are you?"
+        self.text = ["DUCK: I'm sorry, but you can't stay with us. Good luck.",
+                    "DUCK: Ugh! Leave us alone, you don't belong with us!",
+                    "DUCK: Get away, you monster! We don't want you here!"]
 
 class ChildDuck(Friend):
     def __init__(self, x, y, width = 75, height = 75, not_used = 0):
         self.width = width
         self.height = height
         Friend.__init__(self, x, y, self.width, self.height, not_used, "png/child_duck_friend.png")
-        self.text = "BABY DUCK: Hi! Are you here to play?"
+        self.text = ["BABY DUCK: Hi! Wanna play?",
+                    "BABY DUCK: Uh... what's that on your head?",
+                    "BABY DUCK: Eek! Get away! MOMMY!"]
 
 class Log(Friend):
     pass
