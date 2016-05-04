@@ -226,3 +226,16 @@ class Room_00(Room):
         for enemy in enemy_list:
             block = enemy[5](enemy[2], enemy[3], enemy[0], enemy[1], enemy[4])
             self.enemy_list.add(block)
+
+class Tutorial(object):
+    def __init__(self):
+        self.text = ['Shoot a spore to decompose the enemy with space! Then eat it... if you dare.',
+                    "You're not very buoyant unless you 'f'lip over!",
+                    "Try getting up higher using the things you know!",
+                    "Y'know... lava doesn't look very safe to touch.",
+                    "Use 'e' and 'q' to switch between your spore powers!",
+                    "Talk to me with 't'. Also... that duck looks... tasty. Er, fun. Yeah. Fun."]
+        self.talk_length = 60
+
+    def __str__(self):
+        return 'Enemy'

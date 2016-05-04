@@ -33,10 +33,8 @@ class Controller(object):
      
         # Create all the levels
         self.room_list = []
-<<<<<<< HEAD
-=======
+
         self.room_list.append( Room_00(self.player) )
->>>>>>> f613c32a0002097213a7bd558f10bb0c615cf7ed
         self.room_list.append( Room_01(self.player) )
  
         # Set the first level
@@ -133,14 +131,16 @@ class Controller(object):
             if pygame.key.get_pressed()[pygame.K_RIGHT]:
                 self.player.go_right()
                         
-            talkers = [creature for creature in self.current_room.enemy_list if creature.talked] + [player for player in [self.player] if player.talked]
+            talkers = ([creature for creature in self.current_room.enemy_list if creature.talked] + [player for player in [self.player] if player.talked]
+                      + [tut for tut in [self.current_room.tutorial] if self.current_room.is_tutorial])
             for talker in talkers:
-                self.hud_components.add(Text(other, self.player, talker.text[self.player.list_index], talker.talk_length, talker.__str__()))
+                if isinstance(talker, Tutorial):
+                    self.hud_components.add(Text(other, self.player, talker.text[self.player.rect.x/500], talker.talk_length, talker.__str__()))
+                else:
+                    self.hud_components.add(Text(other, self.player, talker.text[self.player.list_index], talker.talk_length, talker.__str__()))
             if talkers:
                 # This bit removes all but the most important message. In the event of a tie, it removes the earlier message.
                 messages = [message for message in self.hud_components if isinstance(message, Text)]
-                for message in messages:
-                    print message
                 most_important = max(messages)
                 self.hud_components.remove([message for message in messages if message.words != most_important.words])
             
@@ -171,7 +171,7 @@ class Controller(object):
             enemy.room = self.current_room
 
         self.player.room = self.current_room
-        self.player.rect.x = 2300
+        self.player.rect.x = 0
         self.player.rect.y = 0
 
     def save(self):
