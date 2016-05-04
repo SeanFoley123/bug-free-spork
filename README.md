@@ -21,7 +21,7 @@ To play, run the file game_base2.py. This imports the modules Spores, LivingThin
 - game_base2 displays and runs the game using a Controller and View class
 
 ## Getting Started
-ADD THIS LATER PLEASE GUYS LETS NOT FORGET
+To download the code to run Symbiosis, open https://github.com/SeanFoley123/bug-free-spork/archive/master.zip in a browswer.
 
 ## Usage
 Run from game_base2.py. This should open a pygame window, beginning with a cutscene. Press 'space' to advance through this cutscene. The game will then begin.
