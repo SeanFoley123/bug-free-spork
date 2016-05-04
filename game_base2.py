@@ -70,8 +70,6 @@ class Controller(object):
                         self.player.go_left()
                     if event.key == pygame.K_RIGHT:
                         self.player.go_right()
-                    if event.key == pygame.K_UP:
-                        self.player.jump()
 
                     if event.key in self.spores_dict:
                         # Switches the active projectile spore to the ledge-maker
@@ -124,7 +122,7 @@ class Controller(object):
 
         if not self.menu.menu_on:
             # Checks if c is pressed, and climbs if it is
-            if pygame.key.get_pressed()[pygame.K_c]:
+            if pygame.key.get_pressed()[pygame.K_UP]:
                 self.player.climb()
             if pygame.key.get_pressed()[pygame.K_LEFT]: 
                 self.player.go_left()
