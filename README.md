@@ -5,7 +5,9 @@
 **Software Design, Spring 2016**
 
 Symbiosis is a platform game in which you play as a blobby orphan baby trying to find a family to accept it. Using powers granted to you by a mushroom symbiote, traverse levels and make decisions to meet your goal. 
+
 Game Site: https://sites.google.com/site/symbiosisthegame/home
+
 Game Drive: https://drive.google.com/open?id=0Byeh9J0R89gxbTJKakREYWRnbTA
 
 ## Dependencies
