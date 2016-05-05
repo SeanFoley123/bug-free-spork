@@ -266,7 +266,7 @@ class MushroomGuy(Living):
         self.draw_flipped()
 
         # Turn off death for easier testing
-        death = False
+        death = True
         if not death:
             self.wound = 0
 
@@ -373,7 +373,7 @@ class Friend(Enemy):
         self.image = pygame.image.load(image_file_name).convert_alpha()
         self.image = pygame.transform.scale(self.image, (width, height))
         self.near_player = False
-        self.talk_length = 240
+        self.talk_length = 180
 
     def update(self):
         self.calc_grav()

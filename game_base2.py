@@ -34,7 +34,7 @@ class Controller(object):
         # Create all the levels
         self.room_list = []
 
-        self.room_list.append( Room_00(self.player) )
+        # self.room_list.append( Room_00(self.player) )
         self.room_list.append( Room_01(self.player) )
  
         # Set the first level
@@ -131,8 +131,8 @@ class Controller(object):
             if pygame.key.get_pressed()[pygame.K_RIGHT]:
                 self.player.go_right()
                         
-            talkers = ([creature for creature in self.current_room.enemy_list if creature.talked] + [player for player in [self.player] if player.talked]
-                      + [tut for tut in [self.current_room.tutorial] if self.current_room.is_tutorial])
+            talkers = ([creature for creature in self.current_room.enemy_list if creature.talked] + [player for player in [self.player] if player.talked])
+                      #+ [tut for tut in [self.current_room.tutorial] if self.current_room.is_tutorial])
             for talker in talkers:
                 if isinstance(talker, Tutorial):
                     self.hud_components.add(Text(other, self.player, talker.text[self.player.rect.x/500], talker.talk_length, talker.__str__()))
