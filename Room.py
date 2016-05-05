@@ -48,6 +48,7 @@ class Room(object):
 
         # Checks if the Room is a tutorial level
         self.is_tutorial = False
+        self.tutorial = None
  
     # Update everythign on this level
     def update(self):
@@ -81,8 +82,10 @@ class Room_01(Room):
         # Call the parent constructor
         Room.__init__(self, player)
         
-        self.world_size = (SCREEN_WIDTH*5, 800)
+        self.world_size = (4000, 800)
         self.world = pygame.Surface(self.world_size)
+        self.next_level = 1
+        print self.next_level
 
         # Solid objects. Array with width, height, x, y, and class of obstacle
         room = [[200, SCREEN_HEIGHT-STARTING_LEVEL, 0, STARTING_LEVEL, Ground],
@@ -159,11 +162,94 @@ class Room_01(Room):
             block = enemy[5](enemy[2], enemy[3], enemy[0], enemy[1], enemy[4])
             self.enemy_list.add(block)
 
-class Room_00(Room):
-    """ Definition for level 1. """
+class Room_02(Room):
+    """ Definition for level 2. """
  
     def __init__(self, player):
-        """ Create level 1. """
+        """ Create level 2. """
+ 
+        # Call the parent constructor
+        Room.__init__(self, player)
+        
+        self.world_size = (8000, 1700)
+        self.world = pygame.Surface(self.world_size)
+
+        # Solid objects. Array with width, height, x, y, and class of obstacle
+        room =  [[8000, 100, 0, 1600, Ground],
+                [600, 200, 0, 1400, Ground], [200, 1200, 200, 0, Ground],
+                [400, 800, 600, 800, Ground], [600, 200, 600, 600, Lava],
+                [400, 400, 600, 200, Ground], [300, 800, 1000, 800, Lava],
+                [700, 1500, 1300, 100, Ground], [250, 200, 2400, 1000, Ground],
+                [600, 100, 2400, 900, Ground], [50, 100, 2400, 800, Ground],
+                [500, 100, 2450, 800, Lava], [50, 100, 2950, 800, Ground],
+                [250, 200, 2750, 1000, Ground], [1100, 400, 3200, 1200, Ground],
+                [75, 400, 3400, 600, Ground], [325, 25, 3475, 975, Ground],
+                [325, 175, 3475, 800, Lava], [200, 1000, 3800, 0, Ground],
+                [100, 800, 4300, 800, Ground], [200, 50, 4200, 750, Ground],
+                [200, 50, 4000, 400, Ground], [200, 25, 4200, 100, Ground],
+                [200, 1500, 4400, 100, Ground], [3400, 100, 4600, 1500, Lava],
+                [200, 200, 5200, 600, Ground], [200, 400, 5400, 0, Ground],
+                [200, 900, 5400, 600, Ground], [200, 50, 5600, 350, Ground],
+                [200, 50, 5800, 150, Ground], [400, 400, 5800, 600, Ground],
+                [200, 850, 6000, 150, Ground], [200, 50, 6200, 550, Lava],
+                [200, 200, 6200, 600, Ground], [200, 800, 6400, 200, Ground],
+                [400, 400, 6600, 400, Ground], [250, 25, 6600, 975, Ground],
+                [200, 400, 7000, 600, Ground], [400, 600, 7400, 800, Ground],
+                [200, 400, 7800, 1000, Ground]]
+
+        # Objects that hinder movement (and drown the player if they are not flipped) 
+        # Array with width, height, x, y, and class of obstacle
+        sludge = [[1200, 400, 2000, 1200, Water],
+                [800, 500, 4600, 1000, Water],
+                [1800, 500, 5600, 1000, Water]]
+
+        # Objects you can eat. Array with width, height, x, y, and class of obstacle
+        consumeable = []
+
+        # Enemies on the level- (width, height, start_x, start_y, end_x)
+        enemy_list =  [[75, 75, 1900, 0, 1400, Enemy],
+                    [75, 75, 3400, 400, 0, ChildDuck],
+                    [75, 75, 4000, 1000, 3200, Enemy],
+                    [75, 75, 4125, 0, 4000, Enemy],
+                    [75, 75, 4325, 400, 4200, Enemy],
+                    [75, 75, 5525, 400, 5200, Enemy],
+                    [75, 75, 5725, 0, 5600, Enemy],
+                    [75, 75, 6925, 0, 6600, Enemy],
+                    [75, 75, 6600, 800, 0, ChildDuck],
+                    [100, 100, 7700, 600, 0, AdultDuck]]
+
+ 
+        # Go through the array above and add obstacles
+        for obstacle in room:
+            block = obstacle[4](obstacle[2], obstacle[3], obstacle[0], obstacle[1])
+            block.rect.x = obstacle[2]
+            block.rect.y = obstacle[3]
+            block.player = self.player
+            self.wall_list.add(block)
+
+        for obstacle in sludge:
+            block = obstacle[4](obstacle[2], obstacle[3], obstacle[0], obstacle[1])
+            block.rect.x = obstacle[2]
+            block.rect.y = obstacle[3]
+            block.player = self.player
+            self.sludge.add(block)
+
+        for food in consumeable:
+            block = food[4](food[2], food[3], food[0], food[1])
+            block.rect.x = food[2]
+            block.rect.y = food[3]
+            block.player = self.player
+            self.consumeable.add(block)
+
+        for enemy in enemy_list:
+            block = enemy[5](enemy[2], enemy[3], enemy[0], enemy[1], enemy[4])
+            self.enemy_list.add(block)
+
+class Room_00(Room):
+    """ Definition for Tutorial Level. """
+ 
+    def __init__(self, player):
+        """ Create Tutorial. """
  
         # Call the parent constructor
         Room.__init__(self, player)
