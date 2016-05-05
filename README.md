@@ -4,7 +4,7 @@
 
 **Software Design, Spring 2016**
 
-Symbiosis is a platform game in which you play as a blobby orphan baby trying to find a family to accept it. Using powers granted to you by a mushroom symbiote, traverse levels and make decisions to meet your goal.
+Symbiosis is a platform game in which you play as a blobby orphan baby trying to find a family to accept it. Using powers granted to you by a mushroom symbiote, traverse levels and make decisions to meet your goal. Game Site: https://sites.google.com/site/symbiosisthegame/home
 
 ## Dependencies
 This project uses the math, sys, collections, numpy and pygame libraries. Make sure these are installed before playing the game.
