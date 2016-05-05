@@ -1,4 +1,3 @@
-#import math, sys
 import pygame
 from pygame.locals import *
 
@@ -16,29 +15,27 @@ SCREEN_W_MID = SCREEN_WIDTH/2
 SCREEN_H_MID = SCREEN_HEIGHT/2
 
 class Button(object):
-    
+    """ Each button in the menu is a Button object. """
     def __init__(self, text, position):
         self.text = text
         self.position = position
         self.hovered = False
         self.make_button()
 
-
-    #determines the color of the button depending on whether the mouse is over it
     def color(self):
+        # Determines the color of the button depending on whether the mouse is over it
         if self.hovered:
             return (0, 0, 0)
         else:
             return (100, 100, 200)
     
-    #defines parameters for the button
     def make_button_params(self):
+        # Defines parameters for the button
         font = pygame.font.Font(pygame.font.get_default_font(), 24)
         self.button_surf = font.render(self.text, True, self.color(), pygame.Color('red'))
-        #self.button_params = (self.text, True, self.color())
 
-    #makes the rect for the button
     def make_button(self):
+        # Makes the bounding rect for the button that allows you to check its collisions with the mouse
         self.make_button_params()
         self.rect = self.button_surf.get_rect()
         self.rect.center = self.position
@@ -51,18 +48,15 @@ class Button(object):
         return self.text
 
 class Menu(object):
-    
+    """ Menu object contains a number of buttons and draws them onto the screen. """
     def __init__(self, menu_on):
         self.menu_on = menu_on
 
         button_width = 300
         self.buttons = []
-        # self.buttons = [Button("New Game", (SCREEN_WIDTH/2, 100)),
-        #                 Button("Continue", (SCREEN_WIDTH/2, 200)),
-        #                 Button("Quit Game", (SCREEN_WIDTH/2, 300)),
-        #                 Button("Resume", (SCREEN_WIDTH/2, 400))]
-    
+
     def make_buttons(self, names):
+        # Evenly spaces the buttons based on how many there are.
         start = 100
         spacing = (SCREEN_HEIGHT - 200)/len(names)
         for number, name in enumerate(names):

@@ -27,7 +27,7 @@ To download the code to run Symbiosis, open https://github.com/SeanFoley123/bug-
 Run from game_base2.py. This should open a pygame window, beginning with a cutscene. Press 'space' to advance through this cutscene. The game will then begin.
 
 ### Keybindings
-Use the left and right arrow keys to move. Spacebar throws spores; change which type using 'e' (grows ledges) and 'q' (kills and destroys objects). The down arrow key lets you eat mushrooms to regain health. 't' allows you to talk to your sybiotic mushroom friend. 'm' brings up the menu. Don't hit the enemy, try to survive!
+Use the left and right arrow keys to move. Spacebar throws spores; change which type using 'e' (grows ledges) and 'q' (kills and destroys objects). The down arrow key lets you eat mushrooms to regain health. 't' allows you to talk to your sybiotic mushroom friend. 'p' brings up the pause menu. Don't hit the enemy, try to survive!
 
 ## Credit
 http://programarcadegames.com/python_examples/show_file.php?file=platform_jumper.py for basic platforming code

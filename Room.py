@@ -50,7 +50,7 @@ class Room(object):
         self.is_tutorial = False
         self.tutorial = None
  
-    # Update everythign on this level
+    # Update everything on this level
     def update(self):
         """ Update everything in this level."""
         self.wall_list.update()
@@ -72,7 +72,6 @@ class Room(object):
         self.consumeable.draw(self.world)
         self.can_climb.draw(self.world)
 
-# Create platforms for the level
 class Room_01(Room):
     """ Definition for level 1. """
  
@@ -85,7 +84,6 @@ class Room_01(Room):
         self.world_size = (4000, 800)
         self.world = pygame.Surface(self.world_size)
         self.next_level = 1
-        print self.next_level
 
         # Solid objects. Array with width, height, x, y, and class of obstacle
         room = [[200, SCREEN_HEIGHT-STARTING_LEVEL, 0, STARTING_LEVEL, Ground],
@@ -314,6 +312,7 @@ class Room_00(Room):
             self.enemy_list.add(block)
 
 class Tutorial(object):
+    """ A class that defines the text used in the tutorial. """
     def __init__(self):
         self.text = ['Shoot a spore to decompose the enemy with space! Then eat it... if you dare.',
                     "You're not very buoyant unless you 'f'lip over!",

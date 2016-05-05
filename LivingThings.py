@@ -44,14 +44,14 @@ class Living(pygame.sprite.Sprite):
         self.change_x = initial_speed
         self.change_y = 0
 
+        # Set basic parameters
         self.room = None
         self.flipped = False
         self.wet = False
-
         self.talked = False
 
     def calc_grav(self):
-        """ Calculate effect of gravity. """
+        """ Calculate effect of gravity. Changes based on whether you're in the water or floating or on the ground. """
         if self.wet and self.flipped and not self.is_floating():
             self.change_y -= .2
         elif self.is_floating() and self.flipped:
@@ -68,28 +68,25 @@ class Living(pygame.sprite.Sprite):
 
     def is_floating(self):
         """ Check to see if you are floating on top of water """
+        # Checks if there is water 1 pixel below you
         self.rect.y += 1
         water_beneath = pygame.sprite.spritecollide(self, self.room.sludge, False)
+        
+        # Checks if there is water in the spot you actually occupy
         self.rect.y -= 1
         in_water = pygame.sprite.spritecollide(self, self.room.sludge, False)
-
-        # If you hit water, then you can float
-        if len(water_beneath) > 0 and len(in_water) == 0:
-            return True
-        else:
-            return False
+    
+        # If there's water beneath you but you're not in water, you're floating!
+        return water_beneath and not in_water
 
 class MushroomGuy(Living):
-    """ This class represents the bar at the bottom that the player
-    controls. """
- 
-    # Constructor function
+    """ This class represents the player character. """
     def __init__(self):
         self.size = (75, 75)
         # Call the parent's constructor
         Living.__init__(self, 0, 0, self.size[0], self.size[1], 'png/mg_tc0.png', 0)
  
-        # Set height, width
+        # Set images
         self.image_list = [pygame.image.load('png/mg_tc0.png').convert_alpha(), pygame.image.load('png/mg_tc1.png').convert_alpha(), pygame.image.load('png/mg_tc2.png').convert_alpha()]
         for index, image in enumerate(self.image_list):
             self.image_list[index] = pygame.transform.scale(image, self.size)
@@ -147,7 +144,7 @@ class MushroomGuy(Living):
         self.change_x = 0
 
     def jump(self):
-        """ Called when user hits 'jump' button. Currently does: nothing"""
+        """ Called when user hits 'jump' button. Currently does nothing, but can be uncommented if desired. """
         pass
         # # move down a bit and see if there is a platform below us.
         # # Move down 2 pixels because it doesn't work well if we only move down
@@ -160,10 +157,6 @@ class MushroomGuy(Living):
         # # That's a really cool way to do this
         # if len(wall_hit_list) > 0 and not self.flipped:
         #     self.change_y = -5
-
-    #TODO: possible better way to do this: need to discuss
-    # a better way to do this may be to keep track of the current sprite in a variable  
-    # and have both how_corrupt and draw_flipped use that variable
 
     def how_corrupt(self):
         """ Changes the image based on the corruption level of the player. """
@@ -180,15 +173,16 @@ class MushroomGuy(Living):
             self.image = pygame.transform.flip(self.image_list[self.list_index], False, True)
 
     def climb(self):
+        """ Allows the player to climb ledge fungi. """
         if pygame.sprite.spritecollide(self, self.room.can_climb, False):
             self.change_y = -5
  
     def update(self):
         """ Update the player position. """
-        #print self.flipped
-        #print pygame.sprite.spritecollide(self, self.room.sludge, False)
+
         # Gravity
         self.calc_grav()
+
         # Move left/right
         self.rect.x += self.change_x
         
@@ -202,7 +196,7 @@ class MushroomGuy(Living):
             if block.mortality == True:
                 self.wound += 50
             else:
-                # If we are moving right, set our right side to the left side of
+                # If we are moving right, snap our right side to the left side of
                 # the item we hit
                 if self.change_x > 0:
                     self.rect.right = block.rect.left
@@ -243,34 +237,27 @@ class MushroomGuy(Living):
             self.rect.x -= self.change_x*block.visc
             self.rect.y -= self.change_y*block.visc
 
-        #TODO: for some reason, spritecollide only works when you're crossing the left portion of the rect. 
-        #I have no clue why. It doesn't matter with a short max_drown, but it needs to be fixed.
-        # Moved this one from the drowning check above.
-
-        # Check to see if we ate anything
-        # food_hit_list = pygame.sprite.spritecollide(self, self.room.consumeable, True)
-        # for food in food_hit_list:
-        #     self.corruption += food.corr_points
-        #     self.wound = max(0, self.wound - food.health_points)
-
-        # Check if we're going to die
+        # Check if we're hitting a dangerous enemy
         enemy_hit_list = pygame.sprite.spritecollide(self, self.room.enemy_list, False)
         for enemy in enemy_hit_list:
             if enemy.mortality == True:
                 self.wound += 10
 
+        # Kill player if he's beyond max_wound or max_drown
         if self.wound > self.max_wound or self.drown > self.max_drown:
             self.kill()
 
+        # Update corruption and flipped status
         self.how_corrupt()
         self.draw_flipped()
 
-        # Turn off death for easier testing
+        # Turn off death for easier debugging
         death = True
         if not death:
             self.wound = 0
 
     def __str__(self):
+        # Used in Text
         return 'Player'
 
 class Enemy(Living):
@@ -423,13 +410,13 @@ class ChildDuck(Friend):
                     "BABY DUCK: Eek! Get away! MOMMY!"]
 
 class Log(Enemy):
+    """ Unmoving enemy class. """
     def __init__(self, x, y, width = 100, height = 100, not_used = 0):
         Enemy.__init__(self, x, y, width, height, not_used, speed = 0, mortality = False)
         self.text = ["Shhhh, it's sleeping", "Hah, it can't see us coming!", "This just makes it easier!"]
 
 class Edible(pygame.sprite.Sprite):
-    """ This is the base class; any new foods should be modified from this one.
-        Maybe make this an inherited class from Obstacle? """
+    """ This is the base class; any new foods should be modified from this one. """
     def __init__(self, x, y, width, height, corr_points = 1, health_points = 50):
         """ Constructor for the wall that the player can run into. """
         # Call the parent's constructor
@@ -438,6 +425,8 @@ class Edible(pygame.sprite.Sprite):
         # Set the visual
         self.image = pygame.image.load('png/edible.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (width, height))
+
+        # Set parameters
         self.corr_points = corr_points
         self.health_points = health_points
 

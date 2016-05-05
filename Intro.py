@@ -5,7 +5,7 @@ import pygame
 from pygame.locals import *
 
 class IntroMovie(object):
-	# This class contains the images for the different intro screens as a list
+	""" This class contains the images for the different intro screens as a list. """
 	def __init__(self, screen):
 		# IntroMovie must be given the screen you want it to blit onto
 		self.screen = screen
@@ -38,7 +38,8 @@ class IntroMovie(object):
 		self.rect.center = self.screen.get_rect().center
 
 	def update(self):
-		# Check for any updates, such as they are trying to skip through it all
+		# Check for any updates, such as they are trying to skip through it all. Controller is not currently updating, so this
+		# must be done within IntroMovie
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
 				self.done = True
@@ -60,21 +61,3 @@ def run(screen, clock):
 	while not video.done:
 		video.update()
 		clock.tick(60)
-
-# pygame.init()
-        
-# # Used to manage how fast the screen updates
-# clock = pygame.time.Clock()
-
-# size = [800, 600]
-# screen = pygame.display.set_mode(size)
-     
-# pygame.display.set_caption("Symbiosis")
-
-# video = IntroMovie(screen)
-
-# while not video.done:
-# 	video.update()
-# 	clock.tick(60)
-
-# pygame.quit()
