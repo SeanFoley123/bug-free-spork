@@ -30,7 +30,7 @@ class Room(object):
  
     def __init__(self, player):
         """ Constructor. Pass in a handle to player. Needed for when moving platforms
-            collide with the player. """
+            collide with the player. This is not currently applicable, but may be eventually."""
         self.wall_list = pygame.sprite.Group()
         self.enemy_list = pygame.sprite.Group()
         self.sludge = pygame.sprite.Group()
@@ -50,7 +50,6 @@ class Room(object):
         self.is_tutorial = False
         self.tutorial = None
  
-    # Update everything on this level
     def update(self):
         """ Update everything in this level."""
         self.wall_list.update()

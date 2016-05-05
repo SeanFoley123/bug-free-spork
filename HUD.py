@@ -23,12 +23,13 @@ class Text(HUD_Object):
 		# Duration means how long the message stays on the screen in clock ticks
 		self.timer = duration
 
-		# Set parameters
+		# Set parameters: rectangle for positioning, words for string, and speaker for order of importance
 		self.rect = self.image.get_rect()
 		self.speaker = speaker
 		self.words = words
 	
 	def update(self):
+		""" Keeps the words at the bottom of the screen and keeps track of time. """
 		self.rect.center = (400, 550)
 		self.timer -= 1
 		if self.timer <= 1:
@@ -51,25 +52,30 @@ class Text(HUD_Object):
 class HealthBar(pygame.sprite.Sprite):
 	""" A red on black health bar drawn on the left side of the screen. """
 	def __init__(self, player):
-		# Set the height and position of the red surface, inner_rect, based on the player's current wound value.
+		# Set the height and position of the red surface,
+		# inner_rect, based on the player's current wound value.
 		pygame.sprite.Sprite.__init__(self)
 		self.player = player
 		self.max = self.player.max_wound/5
 		self.current = self.max - self.player.wound/5
 		self.health_diff = self.player.wound/5
+
+		# image is slightly larger than the red bar at max, in order to have a border of 2 px
 		self.image = pygame.Surface((24, self.max+4))
 		self.image.fill((0,0,0))
 
+		# puts it on the left side of the screen, halfway up the side
 		self.rect = self.image.get_rect()
 		self.rect.centery = 300
 		self.rect.centerx = 32
 
+		# creates the red health bar inside the black boundary
 		self.inner_rect = pygame.Rect(2, 2, 20, self.current)
 		self.inner_rect.centery = self.rect.centery
 		self.inner_rect.bottom = self.rect.bottom-2
 
 	def update(self):
-		# Update based on changing wound values.
+		# Update based on changing wound values, blits the new over the old
 		self.inner_rect.height = self.max - self.player.wound/5
 		self.inner_rect.top = 2+self.player.wound/5
 		self.image.fill((0, 0, 0))
@@ -83,7 +89,7 @@ class Spore_Boxes(pygame.sprite.Sprite):
 		# List of all possible spores
 		self.spores = [One_Spore('q'), One_Spore('e')]
 		self.image = pygame.Surface((32, 84))
-		self.image.set_colorkey((0,0,0))			# Makes the default color of a surface, black, into transparent
+		self.image.set_colorkey((0,0,0))	# Makes the default color of a surface, black, into transparent
 
 		# Draws each OneSpore onto self.image
 		for index, spore in enumerate(self.spores):

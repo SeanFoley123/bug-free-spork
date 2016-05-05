@@ -44,11 +44,11 @@ class Living(pygame.sprite.Sprite):
         self.change_x = initial_speed
         self.change_y = 0
 
-        # Set basic parameters
-        self.room = None
-        self.flipped = False
-        self.wet = False
-        self.talked = False
+        # Set basic parameters/all the flags
+        self.room = None # makes it so you can check collisions with objects in the room/affect them
+        self.flipped = False # flips you over, used to draw you upside-down and let you float
+        self.wet = False # checks to see if you are touching water and will make you drown
+        self.talked = False # checks to see if you have spoken to your mushroom and triggers text
 
     def calc_grav(self):
         """ Calculate effect of gravity. Changes based on whether you're in the water or floating or on the ground. """
@@ -57,10 +57,10 @@ class Living(pygame.sprite.Sprite):
         elif self.is_floating() and self.flipped:
             pass
         else:
-            if self.change_y == 0:
+            if self.change_y == 0: # gives an initial speed bump
                 self.change_y = 1
             else:
-                self.change_y += .35
+                self.change_y += .35 # steadily increases the fall
  
     def update(self):
         """ Makes sure all living things can update """
@@ -107,6 +107,7 @@ class MushroomGuy(Living):
         # Set shot direction: 1 = right, -1 = left
         self.shot_dir = 1
 
+        # Set how much abuse the player can take before dying. wound will increase until it hits max_wound
         self.wound = 0
         self.max_wound = 1000
         
@@ -117,7 +118,7 @@ class MushroomGuy(Living):
         #Fire!
         self.on_fire = False
 
-        self.talk_length = 240
+        self.talk_length = 240 # Sets how long text from hitting 't' will last
 
     # Player-controlled movement:
     def go_left(self):
@@ -159,7 +160,7 @@ class MushroomGuy(Living):
         #     self.change_y = -5
 
     def how_corrupt(self):
-        """ Changes the image based on the corruption level of the player. """
+        """ Changes the image based on the corruption level of the player. Currently, 3 levels of corruption. """
         self.list_index = self.corruption/self.corrupt_change
         if self.list_index > len(self.image_list) - 1:
             self.list_index = len(self.image_list) - 1
@@ -365,6 +366,8 @@ class Friend(Enemy):
     def update(self):
         self.calc_grav()
         self.talked = False
+
+        # Talks to you if you are within a certain distance
         if abs(self.room.player.rect.centerx - self.rect.centerx) <= 150:
             if not self.near_player:
                 self.talked = True
@@ -392,6 +395,7 @@ class Friend(Enemy):
         return 'Friend'
 
 class AdultDuck(Friend):
+    """ Makes an Adult Duck. No difference in corruption, just a different image and default size."""
     def __init__(self, x, y, width = 100, height = 100, not_used = 0):
         self.width = width
         self.height = height
@@ -401,6 +405,7 @@ class AdultDuck(Friend):
                     "DUCK: Get away, you monster! We don't want you here!"]
 
 class ChildDuck(Friend):
+    """ Baby Duck. Smaller than Adult. """
     def __init__(self, x, y, width = 75, height = 75, not_used = 0):
         self.width = width
         self.height = height
@@ -410,7 +415,7 @@ class ChildDuck(Friend):
                     "BABY DUCK: Eek! Get away! MOMMY!"]
 
 class Log(Enemy):
-    """ Unmoving enemy class. """
+    """ Unmoving enemy class, does not block or harm. """
     def __init__(self, x, y, width = 100, height = 100, not_used = 0):
         Enemy.__init__(self, x, y, width, height, not_used, speed = 0, mortality = False)
         self.text = ["Shhhh, it's sleeping", "Hah, it can't see us coming!", "This just makes it easier!"]

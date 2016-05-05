@@ -33,9 +33,9 @@ class Obstacle(pygame.sprite.Sprite):
         self.rect.y = y
         self.rect.x = x
 
-        # Add the extra attributes we want
-        self.visc = visc
-        self.mortality = mortality
+        # Add the extra attributes we want.
+        self.visc = visc # causes it to be harder to move through
+        self.mortality = mortality # makes it deadly
 
 class Ground(Obstacle):
     """ Solid surfaces or walls. """
