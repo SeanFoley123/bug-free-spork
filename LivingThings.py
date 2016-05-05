@@ -266,7 +266,7 @@ class MushroomGuy(Living):
         self.draw_flipped()
 
         # Turn off death for easier testing
-        death = False
+        death = True
         if not death:
             self.wound = 0
 
