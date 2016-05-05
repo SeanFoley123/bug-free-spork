@@ -20,7 +20,7 @@ SCREEN_H_MID = SCREEN_HEIGHT/2
 
 class Controller(object):
     """ Controller is responsible for updating the object in the room and handling all user input. """
-    def __init__(self, menu):
+    def __init__(self, menu, room_number):
         # Dictionary of all potential spores
         self.spores_dict = {pygame.K_q: 0, pygame.K_e: 1}
         # Create the player
@@ -34,7 +34,7 @@ class Controller(object):
         self.room_list.append( Room_02(self.player) )
  
         # Set the first level
-        self.current_room_no = 0
+        self.current_room_no = room_number
         self.change_room(0)
  
         self.active_sprite_list = pygame.sprite.Group()
@@ -196,7 +196,7 @@ class Controller(object):
     def resume(self):
         # Restart the game if the player is dead, otherwise just close the pause menu
         if self.player not in self.active_sprite_list:
-            main()
+            main(self.current_room_no)
         self.menu.menu_on = False
 
     def quit_game(self):
@@ -246,14 +246,14 @@ class View(object):
         game_over_pic = pygame.transform.scale(pygame.image.load('game_over_mushroom.jpg').convert(), [350, 350])
         self.screen.blit(game_over_pic, (SCREEN_W_MID-175, SCREEN_H_MID-175))
 
-def main():
+def main(room_number):
     # Initialize all the main components of the game
     pygame.init()
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
     menu = Menu(False)
     view = View(screen, menu)
-    controller = Controller(menu)
+    controller = Controller(menu, room_number)
 
     while not controller.done:
         controller.update(view)
@@ -272,4 +272,4 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Symbiosis")
 run(screen, clock)
 # Once run() is done playing the intro sequence, start the actual game
-main()
+main(0)
