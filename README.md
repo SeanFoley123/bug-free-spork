@@ -58,3 +58,38 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+# THINGS TO DO
+
+## Must be done ASAP
+
+	Make the tutorial more intuitive/helpful
+
+	Fix the whole level-traversing thing. Maybe make you able to go both ways?
+
+	Shrink level 2
+
+	Ledges expire after a certain amount of time (10 seconds?)
+
+	Only one key to switch spores
+
+	Fix the spore-HUD thing
+
+	Display key-bindings on menu
+
+	Make multiple menus
+
+	Terrain rectangles shouldn't affect movement or ledges spreading
+
+## Would be nice
+
+	Make more cool levels
+
+	New spore abilities
+
+	Implement more story
+
+	More levels of corruption
+
+	Make lava look dangerous/make a barrier between it and water
