@@ -12,9 +12,6 @@ SCREEN_HEIGHT = 600
 SCREEN_W_MID = SCREEN_WIDTH/2
 SCREEN_H_MID = SCREEN_HEIGHT/2
 
-#TODO: there is a bug where after a very long time, the spores loop back around the screen. 
-#we need to kill the spores when they hit the edge of the screen
-
 class Spore(pygame.sprite.Sprite):
     """ Base class of spores. 
 
@@ -25,12 +22,13 @@ class Spore(pygame.sprite.Sprite):
         # Call the parent's init
         pygame.sprite.Sprite.__init__(self)
 
-        # Make visible and set direction
+        # Make visible and set direction. player.shot_dir corresponds to the most recent
+        # direction the player was going
         self.image = pygame.Surface([size[0], size[1]])
         self.image.fill(pygame.Color('blueviolet'))
         self.direction = player.shot_dir
 
-        # Set up initial position and direction of shot
+        # Set up initial position and the speed the shot is going. Currently, no spores have y-velocity.
         self.rect = self.image.get_rect()
 
         self.rect.y = player.rect.centery
@@ -39,18 +37,20 @@ class Spore(pygame.sprite.Sprite):
 
         self.rect.x = player.rect.centerx
 
-        # Set up the room and list of things it can hit
+        # Set up the room and list of things it can hit. Different spores will affect different things
         self.room = None
         self.unaffected = pygame.sprite.Group()
         self.affected = pygame.sprite.Group()
+
+        # Set the length of time the spore will be on screen before deleting itself. Each second is 60
         self.life = 240
 
     def setup_lists(self):
-        """ Sets up the list of what it can affect and what it cannot. """
+        """ Sets up the list of what it can affect and what it cannot. Specific to spore types. """
         pass
 
     def update(self):
-        """ Updates the spore. """
+        """ Updates the spore position. """
         self.rect.x += self.change_x
         self.rect.y += self.change_y
 
@@ -84,6 +84,7 @@ class Decompose_Spore(Spore):
     def kill_it(self, other):
         """ Kills the creature and leaves a food in its place """
         if isinstance(other, AdultDuck) or isinstance(other, ChildDuck):
+            # Killing a 'friendly' creature will drop a larger mushroom
             new_food = FriendEdible(other.rect.x, other.rect.y, 75, 50)
             height_change = other.rect.height - 50
             new_food.rect.x = other.rect.x
@@ -91,6 +92,7 @@ class Decompose_Spore(Spore):
             new_food.player = other.room.player
             other.room.consumeable.add(new_food)
         elif isinstance(other, Enemy):
+            # killing a small
             new_food = Edible(other.rect.x, other.rect.y, 50, 50)
             height_change = other.rect.height - 50
             new_food.rect.x = other.rect.x
