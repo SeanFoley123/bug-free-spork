@@ -83,8 +83,8 @@ class Decompose_Spore(Spore):
 
     def kill_it(self, other):
         """ Kills the creature and leaves a food in its place """
-        if isinstance(other, AdultDuck) or isinstance(other, ChildDuck):
             # Killing a 'friendly' creature will drop a larger mushroom
+        if isinstance(other, Friend):
             new_food = FriendEdible(other.rect.x, other.rect.y, 75, 50)
             height_change = other.rect.height - 50
             new_food.rect.x = other.rect.x

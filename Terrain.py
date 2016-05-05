@@ -41,8 +41,6 @@ class Ground(Obstacle):
     """ Solid surfaces or walls. """
     def __init__(self, x, y, w, h):
 		Obstacle.__init__(self, x, y, w, h, 0, False)
-
-		# Make the color and all different
 		self.image = pygame.Surface((w, h))
 		self.image.fill((85, 140, 90))
 
@@ -50,8 +48,6 @@ class Lava(Obstacle):
     """ Deadly red terrain. """
     def __init__(self, x, y, w, h):
 		Obstacle.__init__(self, x, y, w, h, .5, True)
-
-		# Make the color correct
 		self.image = pygame.Surface((w, h))
 		self.image.fill(pygame.Color('chocolate1'))
 
@@ -59,7 +55,5 @@ class Water(Obstacle):
     """ Slows you down. """
     def __init__(self, x, y, w, h):
         Obstacle.__init__(self, x, y, w, h, .5, False)
-
-        # Make the color correct
         self.image = pygame.Surface((w, h))
         self.image.fill((85, 200, 255))

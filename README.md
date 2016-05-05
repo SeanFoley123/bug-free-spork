@@ -4,7 +4,7 @@
 
 **Software Design, Spring 2016**
 
-Symbiosis is a platform game in which you play as a blobby orphan baby trying to find a family to accept it. Using powers granted to you by a mushroom symbiote, traverse levels and make decisions to meet your goal.
+Symbiosis is a platform game in which you play as a blobby orphan baby trying to find a family to accept it. Using powers granted to you by a mushroom symbiote, traverse levels and make decisions to meet your goal. Game Site: https://sites.google.com/site/symbiosisthegame/home
 
 ## Dependencies
 This project uses the math, sys, collections, numpy and pygame libraries. Make sure these are installed before playing the game.
@@ -27,7 +27,7 @@ To download the code to run Symbiosis, open https://github.com/SeanFoley123/bug-
 Run from game_base2.py. This should open a pygame window, beginning with a cutscene. Press 'space' to advance through this cutscene. The game will then begin.
 
 ### Keybindings
-Use the left and right arrow keys to move. Spacebar throws spores; change which type using 'e' (grows ledges) and 'q' (kills and destroys objects). The down arrow key lets you eat mushrooms to regain health. 't' allows you to talk to your sybiotic mushroom friend. 'm' brings up the menu. Don't hit the enemy, try to survive!
+Use the left and right arrow keys to move. Spacebar throws spores; change which type using 'e' (grows ledges) and 'q' (kills and destroys objects). The down arrow key lets you eat mushrooms to regain health. 't' allows you to talk to your sybiotic mushroom friend. 'p' brings up the pause menu. Don't hit the enemy, try to survive!
 
 ## Credit
 http://programarcadegames.com/python_examples/show_file.php?file=platform_jumper.py for basic platforming code
