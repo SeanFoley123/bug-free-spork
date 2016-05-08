@@ -168,52 +168,51 @@ class Room_02(Room):
         # Call the parent constructor
         Room.__init__(self, player)
         
-        self.world_size = (8000, 1700)
+        self.world_size = (7000, 1010)
         self.world = pygame.Surface(self.world_size)
 
         # Solid objects. Array with width, height, x, y, and class of obstacle
-        room =  [[8000, 100, 0, 1600, Ground],
-                [600, 200, 0, 1400, Ground], [200, 1200, 200, 0, Ground],
-                [400, 800, 600, 800, Ground], [600, 200, 600, 600, Lava],
-                [400, 400, 600, 200, Ground], [300, 800, 1000, 800, Lava],
-                [700, 1500, 1300, 100, Ground], [250, 200, 2400, 1000, Ground],
-                [600, 100, 2400, 900, Ground], [50, 100, 2400, 800, Ground],
-                [500, 100, 2450, 800, Lava], [50, 100, 2950, 800, Ground],
-                [250, 200, 2750, 1000, Ground], [1100, 400, 3200, 1200, Ground],
-                [75, 400, 3400, 600, Ground], [325, 25, 3475, 975, Ground],
-                [325, 175, 3475, 800, Lava], [200, 1000, 3800, 0, Ground],
-                [100, 800, 4300, 800, Ground], [200, 50, 4200, 750, Ground],
-                [200, 50, 4000, 400, Ground], [200, 25, 4200, 100, Ground],
-                [200, 1500, 4400, 100, Ground], [3400, 100, 4600, 1500, Lava],
-                [200, 200, 5200, 600, Ground], [200, 400, 5400, 0, Ground],
-                [200, 900, 5400, 600, Ground], [200, 50, 5600, 350, Ground],
-                [200, 50, 5800, 150, Ground], [400, 400, 5800, 600, Ground],
-                [200, 850, 6000, 150, Ground], [200, 50, 6200, 550, Lava],
-                [200, 200, 6200, 600, Ground], [200, 800, 6400, 200, Ground],
-                [400, 400, 6600, 400, Ground], [250, 25, 6600, 975, Ground],
-                [200, 400, 7000, 600, Ground], [400, 600, 7400, 800, Ground],
-                [200, 400, 7800, 1000, Ground]]
+        room =  [[self.world_size[0], 10, 0, self.world_size[1] - 10, Ground],
+                [200, 800, 200, 0, Ground], [200, 500, 600, 500, Ground],
+                [300, 100, 600, 400, Lava], [200, 200, 600, 200, Ground],
+                [200, 500, 800, 500, Lava], [400, 900, 1000, 100, Ground],
+                [250, 200, 1800, 600, Ground], [200, 100, 2000, 600, Ground],
+                [50, 100, 1800, 500, Ground], [500, 100, 1850, 500, Lava],
+                [50, 100, 2350, 500, Ground], [250, 200, 2150, 600, Ground],
+                [1000, 200, 2600, 800, Ground], [75, 225, 2800, 400, Ground],
+                [325, 25, 2875, 600, Ground], [325, 50, 2875, 550, Lava],
+                [100, 625, 3200, 0, Ground], [100, 500, 3600, 550, Ground],
+                [200, 50, 3500, 500, Ground], [150, 50, 3300, 300, Ground],
+                [300, 25, 3500, 100, Ground], [100, 800, 3700, 125, Ground],
+                [3200, 10, 3800, self.world_size[1]-20, Lava],
+                [300, 25, 4400, 400, Ground], [100, 325, 4600, 0, Ground],
+                [100, 565, 4600, 425, Ground], [200, 50, 4700, 275, Ground],
+                [400, 25, 4900, 150, Ground], [400, 200, 4900, 400, Ground],
+                [200, 225, 5100, 175, Ground], [200, 50, 5300, 350, Lava],
+                [200, 100, 5300, 400, Ground], [200, 525, 5500, 75, Ground],
+                [300, 150, 5700, 300, Ground], [200, 25, 5700, 575, Ground],
+                [200, 200, 6000, 400, Ground], [400, 590, 6400, 400, Ground],
+                [200, 390, 6800, 600, Ground]]
 
         # Objects that hinder movement (and drown the player if they are not flipped) 
         # Array with width, height, x, y, and class of obstacle
-        sludge = [[1200, 400, 2000, 1200, Water],
-                [800, 500, 4600, 1000, Water],
-                [1800, 500, 5600, 1000, Water]]
+        sludge = [[1200, 200, 1400, 800, Water],
+                [800, 490, 3800, 500, Water],
+                [1700, 390, 4700, 600, Water]]
 
         # Objects you can eat. Array with width, height, x, y, and class of obstacle
         consumeable = []
 
         # Enemies on the level- (width, height, start_x, start_y, end_x)
-        enemy_list =  [[75, 75, 1900, 0, 1400, Enemy],
-                    [75, 75, 3400, 400, 0, ChildDuck],
-                    [75, 75, 4000, 1000, 3200, Enemy],
-                    [75, 75, 4125, 0, 4000, Enemy],
-                    [75, 75, 4325, 400, 4200, Enemy],
-                    [75, 75, 5525, 400, 5200, Enemy],
-                    [75, 75, 5725, 0, 5600, Enemy],
-                    [75, 75, 6925, 0, 6600, Enemy],
-                    [75, 75, 6600, 800, 0, ChildDuck],
-                    [100, 100, 7700, 600, 0, AdultDuck]]
+        enemy_list =  [[75, 75, 1400, 0, 1000, Enemy],
+                    [75, 75, 2875, 200, 0, ChildDuck],
+                    [75, 75, 3400, 600, 2600, Enemy],
+                    [75, 75, 3500, 0, 3300, Enemy],
+                    [75, 75, 3700, 300, 3500, Enemy],
+                    [75, 75, 4900, 0, 4700, Enemy],
+                    [75, 75, 6800, 0, 6400, Enemy],
+                    [75, 75, 5775, 500, 0, ChildDuck],
+                    [100, 100, 6700, 200, 0, AdultDuck]]
 
  
         # Go through the array above and add obstacles

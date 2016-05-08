@@ -204,6 +204,8 @@ class FirstLedge(pygame.sprite.Sprite):
         self.grow_above = self.rect.top
         self.grow_below = self.rect.bottom
 
+        self.timer = 660
+
     def grow_new_above(self):
         new_ledge = Ledge(self.spread_up, self.grow_above, self.rect.centerx, self.direction)
         blah = True
@@ -240,6 +242,10 @@ class FirstLedge(pygame.sprite.Sprite):
         elif self.spread_down == self.wall.rect.bottom and (self.spread_down - self.grow_below) > 25:
             self.grow_new_below()
 
+        self.timer -= 1
+        if self.timer <= 0:
+            self.kill()
+
 
 class Ledge(pygame.sprite.Sprite):
     def __init__(self, top, bottom, centerx, direction):
@@ -258,3 +264,9 @@ class Ledge(pygame.sprite.Sprite):
         self.rect.centerx = centerx
         self.rect.y = top
         self.climb_okay = True
+        self.timer = 420
+
+    def update(self):
+        self.timer -= 1
+        if self.timer <= 0:
+            self.kill()

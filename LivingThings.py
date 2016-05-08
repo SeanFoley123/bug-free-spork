@@ -271,12 +271,13 @@ class Enemy(Living):
             speed = how quickly it moves in the x direction
             distance = how far it can walk
             mortality = does it kill you? """
-        # Call the parent's constructor
-        Living.__init__(self, x, y, width, height, 'png/enemy.png', speed)
 
         # Set the range of values it can go between
         self.start_x = x - width
         self.end_x = end_x
+
+         # Call the parent's constructor
+        Living.__init__(self, self.start_x, y, width, height, 'png/enemy.png', speed)
 
         # Set speed vector
         self.speed = abs(speed)
