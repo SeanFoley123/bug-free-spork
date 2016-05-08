@@ -1,0 +1,13 @@
+### Technical Review Reflection 2
+
+## Feedback and Decisions
+We asked our audience about some specific bugs which were disrupting our game. From this, we were given a lot of suggestions for both work-arounds (give yourself more health and have it regenerate slowly rather than reset) and solutions which may or may not have worked. Most of the ideas built off of each other, and the idea of health that slowly decreased was the one that stuck out the most. Another suggested only updating the health once, after everything had been checked. Part of this time was spent with the audience trying to figure out our problem, not realizing that the bug was a side effect of a work-around that we were aware of, rather than a complete mystery. However, their idea was sound and we are hoping to incorporate it.
+They also suggested that we build a GUI-based level builder. When we indicated that we may not necessarily have time for this, they recommended clear variable names and all terrain stored in easily editable lists, which was our current solution.
+Our final question revolved around our immediate next steps, mostly along the lines of user-interface. This was valuable in hearing what our audience, the potential users, wanted most, which was mainly a quit/restart option on the death screen so that we don’t have to reopen it each time and a display of stat bars, particularly if we do implement health as a bigger player than it currently is.
+We implemented the lava fix, but decided that our remaining time didn’t afford us the luxury of making a special level builder. We’re going to continue making levels by hand and try to implement robust, fun gameplay.
+
+## Review Process Reflection
+Suggestions we receive may or may not be appropriate to implement given the time constraints and our priorities. Our questions were fairly open, such as “how would you fix x bug, and consequently the discussion was varied in topic and helpfulness,
+Drawing out (on the whiteboard) what the issues were in the code was useful when there was some confusion. Putting up actual code didn’t seem to garner much useful feedback when the audience couldn’t scroll through it on their own computer and see how it interacted with other parts of the code.
+Asking specific, targeted questions (like asking people to prioritize features they would like) was useful in getting helpful feedback in a short time. Having a sheet that they ranked things on physically would have been beneficial.
+It would have been good for us to have let them download the game and play it themselves, so we heard the opinions of people who haven’t been involved in all of the creation process.
