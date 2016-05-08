@@ -43,8 +43,8 @@ class Room(object):
         # Background image
         self.background = None
 
-        # Makes it so you can change to the next level if there is one
-        self.next_level = 0
+        # Makes it so you can change to the next level if there is one, set to 0 if it is the last level
+        self.next_level = 1
 
         # Checks if the Room is a tutorial level
         self.is_tutorial = False
@@ -126,7 +126,7 @@ class Room_01(Room):
                         [50, 50, 3950, 150, Edible]]
 
         # Enemies on the level- (width, height, start_x, start_y, end_x)
-        enemy_list = [[75, 75, 500, 300, 200, Enemy],
+        enemy_list = [[75, 75, 500, 0, 200, Enemy],
                      [75, 75, 1850, 75, 1450, Enemy],
                      [75, 75, 2650, 75, 2252, Enemy],
                      [75, 75, 3800, 75, 3400, Enemy],
@@ -167,6 +167,7 @@ class Room_02(Room):
  
         # Call the parent constructor
         Room.__init__(self, player)
+        self.next_level = 0
         
         self.world_size = (7000, 1010)
         self.world = pygame.Surface(self.world_size)

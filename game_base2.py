@@ -34,7 +34,7 @@ class Controller(object):
         self.room_list.append( Room_02(self.player) )
  
         # Set the first level
-        self.current_room_no = room_number
+        self.current_room_no = 1#room_number
         self.change_room(0)
  
         self.active_sprite_list = pygame.sprite.Group()
@@ -161,8 +161,9 @@ class Controller(object):
                 piece.update()
 
             # Move to the next room if you reach the far right side of this room
-            if self.player.rect.right == self.current_room.world_size[0] and self.current_room != self.room_list[-1]:
+            if self.player.rect.right >= (self.current_room.world_size[0]-10) and self.current_room_no < len(self.room_list) - 1:
                 self.change_room(self.current_room.next_level)
+                print 'checking'
 
     def change_room(self, direction):
         # Adds direction to current_room_no and initializes our new room
