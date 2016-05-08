@@ -66,11 +66,11 @@ SOFTWARE.
 
 	Make the tutorial more intuitive/helpful
 
-	Fix the whole level-traversing thing. Maybe make you able to go both ways?
+	Fix the whole level-traversing thing. Maybe make you able to go both ways? -- Done
 
-	Shrink level 2
+	Shrink level 2 -- Done
 
-	Ledges expire after a certain amount of time (10 seconds?)
+	Ledges expire after a certain amount of time (10 seconds?) -- Done
 
 	Only one key to switch spores
 
